@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<p><span style="font-size:110%;">IMPORTANT NOTE:</span>&nbsp;MedsStockTracker is just a convenience tool.
+    It should never be used as a primary tool to manage critical medicine supply.</p>
+<p></p>
+<h3>General</h3>
+<p>
+MedsStockTracker (MST) tracks your medicines inventory. It doesn't tell you when you should take your
+    medicines, how much to take, etc. It only tells you when your medicine stock is going to
+    run out, and it alerts you when it is time to re-stock.</p>
+<p>For each medicine that you're tracking, you tell MST the daily dosage, and the amount available.
+Every time you re-stock, you update the app so it can track your inventory.
+From this information MST tries to predict when your stock will run low, and it alerts you some
+time in advance.
+</p>
+
+<h3>Notification Severity Levels</h3>
+Notifications have two severity levels: <span style="font-style: italic; font-weight: bold;">Warning</span> and
+<span style="font-style: italic; font-weight: bold;">Critical</span>.<p>When the estimated stock of a certain medicine
+gets too low, you will receive a daily "Warning Notification" until you re-stock and update the app.
+If you do not re-stock and the estimated stock of that medicine drops even further, you will receive
+    a daily "Critical Notification".</p><p> The app decides when to issue
+each type of notification according to "Stock Thresholds" that you define in Settings. These thresholds are
+    explained in the next section.</p>
+
+<h3>Stock Thresholds</h3>
+In the Settings screen, you define two "stock thresholds"
+<span style="font-style: italic; font-weight: bold;">Warning stock threshold</span> and
+<span style="font-style: italic; font-weight: bold;">Critical stock threshold</span>.
+<p>
+    Both thresholds are define in days. They define at what stock level the app starts issuing notifications.</p>
+<p>
+    For example, if you set the Warning threshold to 14 days and the Critical threshold to 7 days,
+    you will get daily Warning notifications for every medication with stock that will last less
+    than 14 days. For medicines with even lower stock, that won't last even for 7 days, you will get
+    a daily Critical notification instead.
+</p>
+<h3>Earliest time for notifications</h3>
+MST only issues notifications once a day. Once you dismiss a notification, you won't be bothered
+again until the next day. So MST has to decide when is a good time in the day to issue its notifications.
+<p>
+    You cannot determine the exact time during the day for notifications to be delivered. You can
+    however ask that they won't be delivered before a certain time. This is done in the settings
+    screen by clicking on <span style="font-weight: bold;">Earliest time for notifications</span>.
+    If your device is turn on when this time arrives, notifications will be delivered within at most
+    20 minutes of that time. If your device is turned off when this time arrives, notifications will
+    be delivered soon after it is turn back on.
+</p>
+
+<h3>Notifications Settings</h3>
+Notifications settings depends on the Android version of your device:
+<ul>
+<li>
+    On devices with Android v8.0 (Oreo) and newer, there are two notifications categories; One for
+    "Critical" notifications, and one for "Warning" notifications. For each category you have full
+    control over the notification characteristics such as tone, vibration, etc. This is done on
+    dedicated screens that can be reached by clicking on "Notifications settings" in MST's settings
+    screen, or alternatively, from Android's main settings screen.
+</li>
+<li>
+    On devices with Android v7.1 (Nougat) and earlier, there is no distinction between different
+    categories, and all the notifications parameters such as tone, vibration, etc, are controlled
+    from MST's main settings screen itself.
+</li>
+</ul>
+
+<h3>Medicines Stock Estimation</h3>
+<p>
+    Obviously, MST has no way of knowing the actual stock of your medicines. It estimates the current
+    stock of each medicine based on the data you provide.
+</p>
+<p>
+    For example, if five days ago you said that you have 42 pills of a certain medicine, and the daily
+    dose of that medicine is two pills, MST estimates that you now have 32 pills.
+</p>
+<p>
+    Note: MST assumes that the complete daily dose is consumed at once in the beginning of each day
+    (i.e. at 00:01). So in the above example, if you made the update at 08:00 in the morning, MST
+    will estimate the stock to be 42 pills for the rest of that day, 40 the next day, etc. It assumes
+    that when you update the stock at 08:00, you already consumed your daily dose of that day.
+</p>
+</body>
+</html>

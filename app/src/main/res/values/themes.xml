@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- To see how to trace theme and style hierarchies: https://www.youtube.com/watch?v=yQR_Fde5bRE -->
+
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.MedsStockTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/MSTColorPrimary</item>
+        <item name="colorPrimaryVariant">@color/MSTColorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/MSTColorOnPrimary</item>
+        <item name="colorSecondary">@color/MSTColorSecondary</item>
+        <item name="colorSecondaryVariant">@color/MSTColorSecondaryVariant</item>
+        <item name="colorOnSecondary">@color/MSTColorOnSecondary</item>
+        <item name="android:colorBackground">@color/MSTColorBackground</item>
+        <item name="colorOnBackground">@color/MSTColorOnBackground</item>
+        <item name="colorSurface">@color/MSTColorSurface</item>
+        <item name="colorOnSurface">@color/MSTColorOnSurface</item>
+        <item name="colorError">@color/MSTColorError</item>
+        <item name="colorOnError">@color/MSTColorOnError</item>
+        <item name="android:statusBarColor">@color/MSTColorPrimaryVariant</item> <!-- Color of the status bar. From: https://github.com/material-components/material-components-android/issues/811 -->
+
+        <!--<item name="colorControlNormal">@color/MSTColorControlNormal</item>--> <!-- Icons (hamburger, back arrow, etc) on the toolbar -->
+        <!--<item name="android:textColorPrimary">@color/MSTTextColorPrimary</item>--> <!-- Title color on the toolbar -->
+
+        <!-- CAB how-to in material-design: https://material.io/develop/android/components/top-app-bars/#contextual-action-bar-->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Widget.App.ActionMode</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_24dp</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+    </style>
+
+    <!-- The Material-Components Navigation Drawer uses colorPrimary to tint the selected text. This
+         doesn't have a good contrast in our case, especially in dark theme. We use a theme overlay
+         to replace the colorPrimary to something with better contrast -->
+    <style name="ThemeOverlay.MedsStockTracker.NavDrawer" parent="Theme.MedsStockTracker">
+        <item name="colorPrimary">@color/MSTColorOnSurface</item>
+        <item name="colorNavDrawerHeaderBGStart">@color/MSTColorPrimary</item>
+        <item name="colorNavDrawerHeaderBGEnd">@color/MSTColorPrimaryVariant</item>
+    </style>
+
+</resources>

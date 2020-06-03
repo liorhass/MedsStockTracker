@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <!-- Trick for using data-binding with extension functions: https://stackoverflow.com/questions/49898669/kotlin-extension-functions-databinding -->
+        <import
+            alias="MedicineLogic"
+            type="com.liorhass.android.medsstocktracker.model.MedicineLogicKt" />
+        <variable
+            name="viewModel"
+            type="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.liorhass.android.medsstocktracker.MainActivity">
+
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonCancel"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/cancel"
+                android:onClick="@{(v) -> viewModel.onCancel()}"/>
+
+            <View
+                android:layout_width="1px"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="#90909090" />
+
+            <Button
+                android:id="@+id/buttonSave"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:onClick="@{(v) -> viewModel.onSave(medicineName.getText().toString(), dailyDose.getText().toString(), currentStock.getText().toString())}"
+                />
+        </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1px"
+            android:background="#90909090" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"> <!-- ScrollView is needed because sometimes the KB hides the bottom of the form -->
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:paddingLeft="10dp"
+                android:paddingTop="20dp"
+                android:paddingRight="10dp"
+                >
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/medicineNameLayout"
+                    style="@style/MST.TextInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/medicine_name"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/medicineName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:text="@{viewModel.medicineStr.name}" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/dailyDoseLayout"
+                    style="@style/MST.TextInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/daily_dose"
+                    app:layout_constraintEnd_toEndOf="@+id/medicineNameLayout"
+                    app:layout_constraintLeft_toLeftOf="@+id/medicineNameLayout"
+                    app:layout_constraintStart_toStartOf="@+id/medicineNameLayout"
+                    app:layout_constraintTop_toBottomOf="@+id/medicineNameLayout">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/dailyDose"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:text="@{viewModel.medicineStr.dailyDose}" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/currentStockLayout"
+                    style="@style/MST.TextInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/current_stock"
+                    app:layout_constraintEnd_toEndOf="@+id/medicineNameLayout"
+                    app:layout_constraintStart_toStartOf="@+id/medicineNameLayout"
+                    app:layout_constraintTop_toBottomOf="@+id/dailyDoseLayout">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/currentStock"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal"
+                        android:maxLines="1"
+                        android:text="@{viewModel.medicineStr.currentStock}" /><!--"@{MedicineLogic.calculateCurrentStockString(viewModel.medicine)}"-->
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
+    </LinearLayout>
+</layout>

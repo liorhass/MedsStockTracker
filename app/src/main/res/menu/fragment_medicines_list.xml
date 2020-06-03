@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="@string/sort"
+        android:icon="@drawable/ic_sort_24dp"
+        app:showAsAction="ifRoom">
+        <menu>
+            <group
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menuSortByUrgency"
+                    android:title="@string/sort_by_urgency"
+                    android:icon="@drawable/ic_alarm_24dp"
+                    app:iconTint="?attr/colorOnSurface"/>
+                <item
+                    android:id="@+id/menuSortAlphabetically"
+                    android:title="@string/sort_alphabetically"
+                    android:icon="@drawable/ic_sort_by_alpha_24dp"
+                    app:iconTint="?attr/colorOnSurface"/>
+            </group>
+        </menu>
+    </item>
+</menu>

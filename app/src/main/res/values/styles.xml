@@ -1,0 +1,23 @@
+<!-- To see how to trace theme and style hierarchies: https://www.youtube.com/watch?v=yQR_Fde5bRE -->
+<resources>
+
+    <!-- For the CAB. From https://material.io/develop/android/components/top-app-bars/#contextual-action-bar-->
+    <style name="Widget.App.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="titleTextStyle">?attr/textAppearanceHeadline6</item>
+        <item name="subtitleTextStyle">?attr/textAppearanceSubtitle1</item>
+        <item name="background">@color/material_grey_900</item>
+    </style>
+
+    <style name="normalTextOnMedicineList" parent="TextAppearance.MaterialComponents.Body2">
+        <!-- Can be customized. Look here: https://material.io/develop/android/theming/typography/ -->
+    </style>
+
+
+    <style name="MST.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="hintTextAppearance">@style/MST.HintTextAppearance</item>
+    </style>
+    <style name="MST.HintTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+</resources>

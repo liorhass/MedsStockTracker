@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="com.liorhass.android.medsstocktracker.medicinelist.MedicineListViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context="com.liorhass.android.medsstocktracker.MainActivity">
+
+        <TextView
+            android:id="@+id/empty_medicine_list_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.isMedicineListEmpty ? View.VISIBLE : View.GONE}"
+            android:text="@{viewModel.medicineListIsEmptyMsg}"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginTop="@dimen/margin"
+            android:layout_marginEnd="@dimen/margin"
+            android:layout_gravity="center"
+            android:gravity="center"
+            tools:text="Empty List"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/medicine_list_recycler_view"
+            android:name="com.liorhass.android.medsstocktracker.FragmentMedicineList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:context="com.liorhass.android.medsstocktracker.FragmentMedicineList"
+            tools:listitem="@layout/fragment_medicine_list_item" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/ic_add_24dp" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <!-- Trick for using data-binding with extension functions: https://stackoverflow.com/questions/49898669/kotlin-extension-functions-databinding -->
+        <import
+            alias="LoggedEventLogic"
+            type="com.liorhass.android.medsstocktracker.model.LoggedEventLogicKt" />
+        <variable
+            name="loggedEvent"
+            type="com.liorhass.android.medsstocktracker.database.LoggedEvent" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/event_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="true"
+        app:contentPadding="0dp"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/list_selector"
+            >
+
+            <TextView
+                android:id="@+id/medicine_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{loggedEvent.medicineName}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:paddingTop="4dp"
+                tools:text="Aspirin" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{LoggedEventLogic.getDateAndTime(loggedEvent)}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:paddingTop="4dp"
+                tools:text="Fri, 7 Apr  13:44" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{loggedEvent.text}"
+                androidtextAppearance="style/TextAppearanceNormalTextInAList"
+                app:layout_constraintTop_toBottomOf="@id/medicine_name"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                tools:text="Added 20 pills of Aspirin With Long Name" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</layout>

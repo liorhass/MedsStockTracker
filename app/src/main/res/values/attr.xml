@@ -1,0 +1,4 @@
+<resources>
+    <attr name="colorNavDrawerHeaderBGStart" format="color" />
+    <attr name="colorNavDrawerHeaderBGEnd" format="color" />
+</resources>

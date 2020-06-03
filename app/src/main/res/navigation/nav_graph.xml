@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/medicineListFragment">
+
+    <fragment
+        android:id="@+id/medicineListFragment"
+        android:name="com.liorhass.android.medsstocktracker.medicinelist.MedicineListFragment"
+        android:label="@string/fragment_title_medicines" >
+        <action
+            android:id="@+id/action_medicine_list_fragment_to_editMedicineFragment"
+            app:destination="@id/editMedicineFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/eventListFragment"
+        android:name="com.liorhass.android.medsstocktracker.eventlist.EventListFragment"
+        android:label="@string/fragment_title_events" />
+    <fragment
+        android:id="@+id/editMedicineFragment"
+        android:name="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineFragment"
+        android:label="@string/fragment_title_edit_medicine" >
+        <action
+            android:id="@+id/action_editMedicineFragment_to_medicine_list_fragment"
+            app:destination="@id/medicineListFragment" />
+        <argument
+            android:name="medicineId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.liorhass.android.medsstocktracker.about.AboutFragment"
+        android:label="@string/fragment_title_about" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.liorhass.android.medsstocktracker.settings.SettingsFragment"
+        android:label="@string/fragment_title_settings" />
+    <fragment
+        android:id="@+id/helpFragment"
+        android:name="com.liorhass.android.medsstocktracker.help.HelpFragment"
+        android:label="@string/fragment_title_help" />
+    <fragment
+        android:id="@+id/privacyFragment"
+        android:name="com.liorhass.android.medsstocktracker.privacy.PrivacyFragment"
+        android:label="@string/fragment_title_privacy" />
+</navigation>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <!-- Trick for using data-binding with extension functions: https://stackoverflow.com/questions/49898669/kotlin-extension-functions-databinding -->
+        <import
+            alias="MedicineLogic"
+            type="com.liorhass.android.medsstocktracker.model.MedicineLogicKt" />
+        <variable
+            name="medicine"
+            type="com.liorhass.android.medsstocktracker.database.Medicine" />
+        <variable
+            name="viewModel"
+            type="com.liorhass.android.medsstocktracker.medicinelist.MedicineListViewModel" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> viewModel.onNavigateToMedicineDetails(medicine.id)}"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="3dp"
+        app:cardUseCompatPadding="true"
+        app:contentPadding="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/list_selector"
+            android:paddingBottom="0dp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="140sp" />
+
+            <TextView
+                android:id="@+id/medicineName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:text="@{medicine.name}"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Acamol With Long Name" />
+
+            <TextView
+                android:id="@+id/currentStockTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/current_stock"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintRight_toLeftOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/medicineName" />
+
+            <TextView
+                android:id="@+id/currentStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{MedicineLogic.calculateCurrentStockConciseString(medicine, currentStock.getContext())}"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintBaseline_toBaselineOf="@id/currentStockTitle"
+                app:layout_constraintLeft_toLeftOf="@id/guideline"
+                tools:text="14 pills;  3 days" />
+
+            <TextView
+                android:id="@+id/dailyUsageTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/daily_usage"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintRight_toLeftOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/currentStockTitle" />
+
+            <TextView
+                android:id="@+id/dailyUsage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{MedicineLogic.getDailyUsageStr(medicine)}"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintBaseline_toBaselineOf="@id/dailyUsageTitle"
+                app:layout_constraintLeft_toLeftOf="@id/guideline"
+                tools:text="4 pills" />
+
+            <TextView
+                android:id="@+id/willRunOutAtTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                android:text="@string/will_run_out_at"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintRight_toLeftOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/dailyUsageTitle" />
+
+            <TextView
+                android:id="@+id/willRunOutAt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{MedicineLogic.calculateExpectedRunOutOfDateString(medicine, willRunOutAt.getContext())}"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintBaseline_toBaselineOf="@id/willRunOutAtTitle"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline"
+                tools:text="Wed, Sep 4" />
+
+            <TextView
+                android:id="@+id/lastUpdatedDateTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/last_updated_at"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/willRunOutAtTitle"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/lastUpdated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/normalTextOnMedicineList"
+                android:text="@{MedicineLogic.getLastUpdatedStr(medicine, context)}"
+                app:layout_constraintBaseline_toBaselineOf="@id/lastUpdatedDateTitle"
+                app:layout_constraintLeft_toLeftOf="@+id/guideline"
+                tools:text="Sun, Sep 1" />
+
+            <ImageView
+                android:id="@+id/statusImage"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="8dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_check_circle_outline_green_48dp" />
+
+            <ImageView
+                android:id="@+id/itemSelectedCheckMark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:alpha="0.5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_check_circle_24dp" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

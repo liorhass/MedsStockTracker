@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Locations to generate pallets:
+      https://material.io/resources/color/#!/?view.left=0&view.right=0&primary.color=00838F&secondary.color=FBC02D
+      https://www.materialpalette.com/teal/cyan
+    -->
+    <color name="MSTColorPrimary">#006056</color>
+    <color name="MSTColorPrimaryVariant">#003433</color>
+    <color name="MSTColorOnPrimary">#F9FBE7</color>
+
+    <color name="MSTColorSecondary">#BF360C</color>
+    <color name="MSTColorSecondaryVariant">#870000</color>
+    <color name="MSTColorOnSecondary">#FFFFFF</color>
+
+    <color name="MSTColorBackground">#000000</color> <!--The background color appears behind scrollable content. 	#FFFFFF-->
+    <color name="MSTColorOnBackground">#B0B0B0</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the background color. 	#000000-->
+    <color name="MSTColorSurface">#181818</color> <!--Surface colors affect surfaces of components, such as cards, sheets, and menus. 	#FFFFFF-->
+    <color name="MSTColorOnSurface">#C0C0C0</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the surface color. 	#000000-->
+    <color name="MSTColorError">#B00020</color> <!--Error color indicates errors states, for components such as text fields 	#B00020-->
+    <color name="MSTColorOnError">#FFFFFF</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the error color. 	#FFFFFF-->
+
+<!--
+    <color name="MSTColorControlNormal">@color/MSTColorOnPrimary</color> &lt;!&ndash; Icons (hamburger, back arrow, etc) on the toolbar &ndash;&gt;
+    <color name="MSTTextColorPrimary">@color/MSTColorOnPrimary</color> &lt;!&ndash; Title color on the toolbar &ndash;&gt;
+-->
+
+    <color name="colorScreenBackground">@android:color/transparent</color>
+    <color name="colorListItemPressed">#333333</color>
+    <color name="colorListItemSelected">#444444</color>
+
+    <color name="ic_launcher_background">#000000</color>
+</resources>

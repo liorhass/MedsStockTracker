@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- See https://github.com/Gericop/Android-Support-Preference-V7-Fix -->
+    <!--
+      NOTE: android:key constants in this file must match the ones in FragmentSettings class
+    -->
+    <ListPreference
+        android:key="@string/pref_theme_key"
+        android:title="@string/pref_theme_title"
+        android:entries="@array/pref_theme_option_labels"
+        android:entryValues="@array/pref_theme_option_values"
+        android:defaultValue="@string/pref_theme_auto_value"
+        app:iconSpaceReserved="false"
+        />
+<!--
+    <PreferenceCategory android:title="@string/pref_meds_stock_thresholds_category_title">
+-->
+        <EditTextPreference
+            android:key="@string/pref_meds_stock_critical_threshold_key"
+            android:title="@string/pref_meds_stock_threshold_critical_title"
+            android:dialogTitle="@string/pref_meds_stock_threshold_critical_dialog_title"
+            android:dialogMessage="@string/pref_meds_stock_threshold_critical_dialog_msg"
+            android:inputType="number"
+            android:maxLength="3"
+            android:defaultValue="@string/pref_meds_stock_critical_threshold_default_value"
+            app:iconSpaceReserved="false"
+            />
+        <EditTextPreference
+            android:key="@string/pref_meds_stock_warning_threshold_key"
+            android:title="@string/pref_meds_stock_threshold_warning_title"
+            android:dialogTitle="@string/pref_meds_stock_threshold_warning_dialog_title"
+            android:dialogMessage="@string/pref_meds_stock_threshold_warning_dialog_msg"
+            android:inputType="number"
+            android:maxLength="3"
+            android:defaultValue="@string/pref_meds_stock_warning_threshold_default_value"
+            app:iconSpaceReserved="false"
+            />
+<!--
+    </PreferenceCategory>
+-->
+<!--
+    <Preference
+        android:key="debug"
+        android:title="debug"
+        />
+-->
+
+    <Preference
+        android:key="@string/pref_notifications_key"
+        android:title="@string/pref_notifications"
+        app:isPreferenceVisible="false"
+        app:iconSpaceReserved="false"
+        />
+
+    <TimePickerPreference
+        android:key="@string/pref_notifications_time_key2"
+        android:title="@string/pref_notifications_time_title"
+        android:dialogTitle="@string/pref_notifications_time_dialog_title"
+        android:defaultValue="06:00"
+        app:pref_summaryHasTime="@string/pref_notifications_time_summary"
+        app:isPreferenceVisible="false"
+        app:iconSpaceReserved="false"
+        />
+
+    <PreferenceCategory
+        android:key="@string/pref_notifications_category_key"
+        android:title="@string/pref_notifications_category_title"
+        app:isPreferenceVisible="false"
+        app:iconSpaceReserved="false"
+        >
+        <CheckBoxPreference
+            android:key="@string/pref_enable_notifications_key"
+            android:title="@string/pref_enable_notifications"
+            android:summary="@string/pref_enable_notifications_summary"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"
+            />
+        <TimePickerPreference
+            android:key="@string/pref_notifications_time_key"
+            android:title="@string/pref_notifications_time_title"
+            android:dialogTitle="@string/pref_notifications_time_dialog_title"
+            android:defaultValue="06:00"
+            app:pref_summaryHasTime="@string/pref_notifications_time_summary"
+            android:dependency="@string/pref_enable_notifications_key"
+            app:iconSpaceReserved="false"
+            />
+        <RingtonePreference
+            android:key="@string/pref_notifications_ringtone_key"
+            android:title="@string/pref_notifications_ringtone_title"
+            android:summary="@string/pref_notifications_ringtone_summary"
+            app:pref_summaryHasRingtone="%s"
+            app:pref_showAdd="false"
+            android:dependency="@string/pref_enable_notifications_key"
+            app:iconSpaceReserved="false"
+            />
+        <CheckBoxPreference
+            android:key="@string/pref_notifications_vibrate_key"
+            android:title="@string/pref_notifications_vibrate_title"
+            android:summary="@string/pref_notifications_vibrate_summary"
+            android:defaultValue="true"
+            android:dependency="@string/pref_enable_notifications_key"
+            app:iconSpaceReserved="false"
+            />
+        <CheckBoxPreference
+            android:key="@string/pref_notifications_led_key"
+            android:title="@string/pref_notifications_led_title"
+            android:summary="@string/pref_notifications_led_summary"
+            android:defaultValue="true"
+            android:dependency="@string/pref_enable_notifications_key"
+            app:iconSpaceReserved="false"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>
