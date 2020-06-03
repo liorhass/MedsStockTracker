@@ -121,7 +121,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="@string/current_stock"
+                    android:hint="@string/current_stock_pills"
                     app:layout_constraintEnd_toEndOf="@+id/medicineNameLayout"
                     app:layout_constraintStart_toStartOf="@+id/medicineNameLayout"
                     app:layout_constraintTop_toBottomOf="@+id/dailyDoseLayout">
