@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.util.OneTimeEvent
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
@@ -52,6 +53,9 @@ class EditMedicineFragment : Fragment() {
         })
         viewModel.resetInputErrors.observe(viewLifecycleOwner, Observer {
             resetErrorMarkings(it)
+        })
+        viewModel.showDialog.observe(viewLifecycleOwner, Observer {
+            showHelpDialog(it)
         })
 
         binding.viewModel = viewModel
@@ -103,6 +107,17 @@ class EditMedicineFragment : Fragment() {
                     findNavController().navigate(EditMedicineFragmentDirections.actionEditMedicineFragmentToMedicineListFragment())
                 else -> Timber.wtf("navigateToDestination(): Unknown destination: ${event.destination}")
             }
+        }
+    }
+
+    private fun showHelpDialog(dialogInfoEvent: OneTimeEvent<EditMedicineViewModel.DialogInfo>) {
+        dialogInfoEvent.getContentIfNotHandled()?.let {
+            Timber.v("showHelpDialog()")
+            MaterialAlertDialogBuilder(context)
+                .setTitle(it.title)
+                .setMessage(it.message)
+                .setNegativeButton(it.dismissButtonText) { _, _ -> }
+                .show()
         }
     }
 }

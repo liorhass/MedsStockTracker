@@ -90,7 +90,7 @@
                 android:textAppearance="@style/normalTextOnMedicineList"
                 app:layout_constraintBaseline_toBaselineOf="@id/dailyUsageTitle"
                 app:layout_constraintLeft_toLeftOf="@id/guideline"
-                tools:text="4 pills" />
+                tools:text="4" />
 
             <TextView
                 android:id="@+id/willRunOutAtTitle"

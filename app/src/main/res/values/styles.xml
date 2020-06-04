@@ -19,5 +19,9 @@
     <style name="MST.HintTextAppearance" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">14sp</item>
     </style>
+    <style name="MST.TextInputHelpButtonLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:tint">@color/MSTColorOnSurfaceWashed</item>
+        <item name="android:background">?android:selectableItemBackground</item> <!-- give the button a transparent background -->
+    </style>
 
 </resources>

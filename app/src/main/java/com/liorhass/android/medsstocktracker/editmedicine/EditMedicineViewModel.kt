@@ -36,6 +36,12 @@ class EditMedicineViewModel(private val medicineId: Long,
     val medicineStr: LiveData<MedicineStr>
         get() = _medicineStr
 
+/*//todo:2brm
+    private val _saveButtonEnabled = MutableLiveData<Boolean>(false)
+    val saveButtonEnabled: LiveData<Boolean>
+        get() = _saveButtonEnabled
+*/
+
     // These observables are observed by the fragment. We use them to flag an input error in one of
     // the input fields.
     private val _resetInputErrors = MutableLiveData<OneTimeEvent<Boolean>>()
@@ -51,6 +57,12 @@ class EditMedicineViewModel(private val medicineId: Long,
     val currentStockInputError: LiveData<OneTimeEvent<Boolean>>
         get() = _currentStockInputError
 
+    // This observable is observed by the fragment. We use it to tell it to show a dialog
+    class DialogInfo (val title: String, val message: String, val dismissButtonText: String)
+    private val _showDialog = MutableLiveData<OneTimeEvent<DialogInfo>>()
+    val showDialog: LiveData<OneTimeEvent<DialogInfo>>
+        get() = _showDialog
+
     private var medicine: Medicine = Medicine()
 
     private var job = Job()
@@ -61,10 +73,10 @@ class EditMedicineViewModel(private val medicineId: Long,
         get() = _navigateTo
 
     init {
-        initializeMedicine()
+        initMedicine()
     }
 
-    private fun initializeMedicine() {
+    private fun initMedicine() {
         if (medicineId != Medicine.ID_OF_UNINITIALIZED_MEDICINE) {
             uiScope.launch {
                 val med = getMedicineFromDatabase(medicineId) // Read the medicine from DB
@@ -76,6 +88,16 @@ class EditMedicineViewModel(private val medicineId: Long,
                     medicine = med
                     Timber.v("initializeMedicine(): name=${medicine.name}")
                     populateFormFields()  // Update the UI fields
+
+/* todo 2brm
+                    // When we populate the form's text fields, it generate a call to their onTextChanged()
+                    // callback. Since this callback is where we enable the "save" button, it turns out that
+                    // the button is always enabled. To prevent that, we disable it here immediately after
+                    // the form load, and then enable it normally in the onTextChanged() callback of
+                    // any of the text fields.
+                    _saveButtonEnabled.value = false
+                    Timber.d("initMedicine() _saveButtonEnabled.value = false  ===========")
+*/
                 }
             }
         }
@@ -149,6 +171,7 @@ class EditMedicineViewModel(private val medicineId: Long,
     }
 
     private fun updateMedicine(medicineName: String, dailyDose: Double, currentStock: Double) {
+        Timber.d("updateMedicine(): medicineName=$medicineName dailyDose=$dailyDose currentStock=$currentStock")
         // Reset the time-of-last-alert, so we'll generate a "normal" (non-critical) alert
         medicine.timeOfLastAlert = 0L //todo: is this should be here or only when creating new medicine?
 
@@ -174,13 +197,13 @@ class EditMedicineViewModel(private val medicineId: Long,
                 medicine.name = medicineName
                 somethingChanged = true
             }
-            if ((medicine.dailyDose - dailyDose).absoluteValue > 0.1) {
+            if ((medicine.dailyDose - dailyDose).absoluteValue > 0.01) {
                 // "Daily-Dose changed from " + medicine.dailyDose + " to " + dailyDose + ". "
                 logMsg.append(application.getString(R.string.logged_event_daily_dose_changed, medicine.dailyDose, dailyDose))
                 medicine.dailyDose = dailyDose
                 somethingChanged = true
             }
-            if ((medicine.nAvailableOriginally - currentStock).absoluteValue > 0.1) {
+            if ((medicine.nAvailableOriginally - currentStock).absoluteValue > 0.01) {
                 // "Available-Dose changed from " + medicine.nAvailableOriginally + " to " + currentStock + "."
                 logMsg.append(application.getString(R.string.logged_event_current_stock_changed, medicine.nAvailableOriginally, currentStock))
                 medicine.nAvailableOriginally = currentStock
@@ -201,6 +224,7 @@ class EditMedicineViewModel(private val medicineId: Long,
                 if (updatedMedicine.id == Medicine.ID_OF_UNINITIALIZED_MEDICINE) {
                     medicinesDao.insertMedicine(updatedMedicine)
                 } else {
+                    Timber.d("Updating medicine: name=${updatedMedicine.name}  dailyDose=${updatedMedicine.dailyDose}")
                     medicinesDao.updateMedicine(updatedMedicine)
                 }
             }
@@ -226,6 +250,42 @@ class EditMedicineViewModel(private val medicineId: Long,
             )
         ) // Trigger navigation back to MedicineListFragment
     }
+
+    fun onHelpMedicineName() {
+        _showDialog.value = OneTimeEvent(
+            DialogInfo(
+                application.getString(R.string.help_dialog_medicine_name_title),
+                application.getString(R.string.help_dialog_medicine_name_msg),
+                application.getString(R.string.help_dialog_btn)
+            )
+        )
+    }
+    fun onHelpDailyDose() {
+        _showDialog.value = OneTimeEvent(
+            DialogInfo(
+                application.getString(R.string.help_dialog_daily_dose_title),
+                application.getString(R.string.help_dialog_daily_dose_msg),
+                application.getString(R.string.help_dialog_btn)
+            )
+        )
+    }
+    fun onHelpCurrentStock() {
+        _showDialog.value = OneTimeEvent(
+            DialogInfo(
+                application.getString(R.string.help_dialog_current_stock_title),
+                application.getString(R.string.help_dialog_current_stock_msg),
+                application.getString(R.string.help_dialog_btn)
+            )
+        )
+    }
+
+/*//todo:2brm
+    fun onTextFieldChanged() {
+        Timber.d("onTextFieldChanged():")
+        _saveButtonEnabled.value = true
+        Timber.d("onTextFieldChanged() _saveButtonEnabled.value = true  ===========")
+    }
+*/
 
     // Called when the ViewModel is destroyed
     override fun onCleared() {

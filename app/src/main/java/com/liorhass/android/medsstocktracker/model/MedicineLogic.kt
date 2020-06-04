@@ -6,21 +6,22 @@ import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.Medicine
 import com.liorhass.android.medsstocktracker.util.CalendarCalculator
 import com.liorhass.android.medsstocktracker.util.humanFriendlyDate
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import kotlin.math.floor
 
 private const val MIN_DAILY_DOSE = 0.00001 // Protect us from daily-dose that is set to 0.0
-private val doseFormatter = DecimalFormat("#.#") //todo: should be replaced w/ locale aware formatter
 
 object DoseFormatter {
     private val formatter: NumberFormat = NumberFormat.getInstance()
     init {
         if (formatter is DecimalFormat) {
-            formatter.applyPattern("#.#")
+            formatter.applyPattern("#.##") //todo: should be replaced w/ locale aware formatter
         }
     }
     fun formatDose(dose: Double): String {
+        Timber.d("formatDose(): dose=$dose")
         return formatter.format(dose)
     }
 }
@@ -65,7 +66,7 @@ fun Medicine.calculateExpectedRunOutDateAndTime(): Long {
 val Medicine.expectedRunOutDateAndTime: Long
     get() = this.calculateExpectedRunOutDateAndTime()
 
-fun Medicine.getDailyUsageStr(): String = doseFormatter.format(this.dailyDose)
+fun Medicine.getDailyUsageStr(): String = DoseFormatter.formatDose(this.dailyDose)
 fun Medicine.getLastUpdatedStr(context: Context): String = humanFriendlyDate(nAvailableUpdateDateAndTime, context)
 
 /**
@@ -77,12 +78,12 @@ fun Medicine.calculateCurrentStockConciseString(context: Context): String? {
         // If there are more than 1000 days left, we don't show the days
         String.format(
             context.getString(R.string.remaining_stock_concise_msg_no_days),
-            doseFormatter.format(this.estimateCurrentStock())
+            DoseFormatter.formatDose(this.estimateCurrentStock())
         )
     } else {
         String.format(
             context.getString(R.string.remaining_stock_concise_msg),
-            doseFormatter.format(this.estimateCurrentStock()), daysLeft
+            DoseFormatter.formatDose(this.estimateCurrentStock()), daysLeft
         )
     }
 }

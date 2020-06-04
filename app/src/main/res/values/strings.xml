@@ -163,4 +163,13 @@
     <string name="err_msg_medicine_name">Invalid medicine name</string>
     <string name="err_msg_daily_dose">Daily Dose must be a valid number</string>
     <string name="err_msg_current_stock">Current Stock must be a valid number</string>
+    <string name="help">Help</string>
+
+    <string name="help_dialog_medicine_name_title">Medicine Name</string>
+    <string name="help_dialog_medicine_name_msg">You can call a medicine however you like. A medicine name can contain letters, numbers and even special characters like -, + @, #, etc. Try to keep it relatively short though (up to 20 characters), so it will feet nicely into screen.</string>
+    <string name="help_dialog_btn">Got it</string>
+    <string name="help_dialog_daily_dose_title">Daily Dosage</string>
+    <string name="help_dialog_daily_dose_msg">The average number of pills you take per day. It is OK to specify a fraction of a pill. For example, if you take one pill four days a week, specify 0.57 as your daily dosage (which is 4/7). If you enter a fraction, don\'t bother to specify more than two decimals.</string>
+    <string name="help_dialog_current_stock_title">Current Stock</string>
+    <string name="help_dialog_current_stock_msg">The number of pills of this medicine that you currently have in stock.</string>
 </resources>

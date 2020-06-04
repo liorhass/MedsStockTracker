@@ -38,15 +38,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // LH https://stackoverflow.com/a/58180018/1071117
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas".toString())
-                arg("room.incremental", "true")
-                arg("room.expandProjection", "true")
-            }
-        }
-
         // Set the generated APK file name.  https://stackoverflow.com/a/28992851/1071117
         setProperty("archivesBaseName", "MedsStockTracker_${versionName}_${versionCode}")
     }

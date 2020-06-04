@@ -16,6 +16,7 @@
     <color name="MSTColorOnBackground">#B0B0B0</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the background color. 	#000000-->
     <color name="MSTColorSurface">#181818</color> <!--Surface colors affect surfaces of components, such as cards, sheets, and menus. 	#FFFFFF-->
     <color name="MSTColorOnSurface">#C0C0C0</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the surface color. 	#000000-->
+    <color name="MSTColorOnSurfaceWashed">#777777</color> <!-- MSTColorOnSurface slightly washed -->
     <color name="MSTColorError">#B00020</color> <!--Error color indicates errors states, for components such as text fields 	#B00020-->
     <color name="MSTColorOnError">#FFFFFF</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the error color. 	#FFFFFF-->
 
