@@ -45,6 +45,7 @@ class MedicineListFragment : Fragment() {
     private lateinit var viewModel: MedicineListViewModel
     private var actionMode: ActionMode? = null
     private lateinit var adapter: MedicineListAdapter
+    private var selectionTracker : SelectionTracker<Long>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,7 +94,6 @@ class MedicineListFragment : Fragment() {
         return binding.root
     }
 
-    private var selectionTracker : SelectionTracker<Long>? = null
     private fun buildSelectionTracker(adapter: MedicineListAdapter) {
         selectionTracker = SelectionTracker.Builder(
             "medicine_list_selection",
@@ -199,6 +199,13 @@ class MedicineListFragment : Fragment() {
         navigationEvent.getContentIfNotHandled()?.let { event -> // Only proceed if the event has never been handled
             when(event.destination) {
                 NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_DETAILS_FRAGMENT -> {
+                    if (selectionTracker?.selection?.size() ?: 0 > 0) {
+                        // Just a hack to bypass a SelectionTracker bug where a long-press on a selected
+                        // item behaves like a click on an item when there is no selection at all (i.e. to
+                        // navigation to the edit-medicine screen) while maintaining the selection and
+                        // the active ActionMode. Bizarre.
+                        return
+                    }
                     val medicineId = event.arg
                     Timber.v("Navigating to EditMedicineFragment medicineId=$medicineId")
                     val action =
