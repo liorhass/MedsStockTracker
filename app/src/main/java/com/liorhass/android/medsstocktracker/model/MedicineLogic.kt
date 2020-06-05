@@ -99,7 +99,7 @@ fun Medicine.calculateExpectedRunOutOfDateString(context: Context): String {
 
 //todo: should cache the boundaries from SharedPreferences in a member variable. Make sure to
 //      refresh them whenever the settings change
-fun Medicine.calculateStatusImage(context: Context): Int {
+fun Medicine.calculateMedicineStatus(context: Context): MedicineStatus {
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     val daysLeft: Int = this.getDaysLeft()
 
@@ -108,24 +108,22 @@ fun Medicine.calculateStatusImage(context: Context): Int {
             context.getString(R.string.pref_meds_stock_critical_threshold_default_value)
         )
     return if (daysLeft < daysLeftCriticalThreshold?.toIntOrNull() ?: 1) {
-        ImageTypes.STATUS_ALERT
+        MedicineStatus.STATUS_CRITICAL
     } else {
         val daysLeftWarningThreshold: String? = sharedPreferences.getString(
                 context.getString(R.string.pref_meds_stock_warning_threshold_key),
                 context.getString(R.string.pref_meds_stock_warning_threshold_default_value)
             )
         if (daysLeft < daysLeftWarningThreshold?.toIntOrNull() ?: 1) {
-            ImageTypes.STATUS_WARN
+            MedicineStatus.STATUS_WARN
         } else {
-            ImageTypes.STATUS_OK
+            MedicineStatus.STATUS_OK
         }
     }
 }
 
-object ImageTypes {
-    const val STATUS_OK = 1
-    const val STATUS_WARN = 2
-    const val STATUS_ALERT = 3
+enum class MedicineStatus {
+    STATUS_OK,
+    STATUS_WARN,
+    STATUS_CRITICAL
 }
-
-

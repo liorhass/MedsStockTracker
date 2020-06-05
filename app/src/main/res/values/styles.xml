@@ -5,7 +5,7 @@
     <style name="Widget.App.ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="titleTextStyle">?attr/textAppearanceHeadline6</item>
         <item name="subtitleTextStyle">?attr/textAppearanceSubtitle1</item>
-        <item name="background">@color/material_grey_900</item>
+        <item name="background">@color/MSTColorCABBackground</item>
     </style>
 
     <style name="normalTextOnMedicineList" parent="TextAppearance.MaterialComponents.Body2">

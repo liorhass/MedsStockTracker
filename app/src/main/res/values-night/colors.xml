@@ -20,10 +20,12 @@
     <color name="MSTColorError">#B00020</color> <!--Error color indicates errors states, for components such as text fields 	#B00020-->
     <color name="MSTColorOnError">#FFFFFF</color> <!--A color that passes accessibility guidelines for text/iconography when drawn on top of the error color. 	#FFFFFF-->
 
-<!--
-    <color name="MSTColorControlNormal">@color/MSTColorOnPrimary</color> &lt;!&ndash; Icons (hamburger, back arrow, etc) on the toolbar &ndash;&gt;
-    <color name="MSTTextColorPrimary">@color/MSTColorOnPrimary</color> &lt;!&ndash; Title color on the toolbar &ndash;&gt;
--->
+    <color name="MSTColorCABBackground">#00322B</color> <!-- CAB color -->
+
+    <!--
+        <color name="MSTColorControlNormal">@color/MSTColorOnPrimary</color> &lt;!&ndash; Icons (hamburger, back arrow, etc) on the toolbar &ndash;&gt;
+        <color name="MSTTextColorPrimary">@color/MSTColorOnPrimary</color> &lt;!&ndash; Title color on the toolbar &ndash;&gt;
+    -->
 
     <color name="colorScreenBackground">@android:color/transparent</color>
     <color name="colorListItemPressed">#333333</color>

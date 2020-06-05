@@ -172,4 +172,8 @@
     <string name="help_dialog_daily_dose_msg">The average number of pills you take per day. It is OK to specify a fraction of a pill. For example, if you take one pill four days a week, specify 0.57 as your daily dosage (which is 4/7). If you enter a fraction, don\'t bother to specify more than two decimals.</string>
     <string name="help_dialog_current_stock_title">Current Stock</string>
     <string name="help_dialog_current_stock_msg">The number of pills of this medicine that you currently have in stock.</string>
+
+    <string name="status_ok">Status is OK</string>
+    <string name="status_warning">Status is Warning</string>
+    <string name="status_critical">Status is Critical</string>
 </resources>

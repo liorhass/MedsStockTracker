@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.Medicine
 import com.liorhass.android.medsstocktracker.databinding.FragmentMedicineListItemBinding
-import com.liorhass.android.medsstocktracker.model.ImageTypes
-import com.liorhass.android.medsstocktracker.model.calculateStatusImage
-import com.liorhass.android.medsstocktracker.model.expectedRunOutDateAndTime
+import com.liorhass.android.medsstocktracker.model.*
 
 class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Context) :
     Adapter<MedicineListAdapter.ViewHolder>() {
@@ -48,17 +46,26 @@ class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Con
     override fun getItemCount(): Int = data.size
     override fun getItemId(position: Int): Long = data[position].id
 
+    //
+    // ViewHolder
+    //
     inner class ViewHolder(private val binding: FragmentMedicineListItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(medicine: Medicine, isActivated: Boolean) {
             binding.medicine = medicine
-            binding.statusImage.setImageDrawable(
-                when (medicine.calculateStatusImage(binding.statusImage.context)) {
-                    ImageTypes.STATUS_OK -> imageStatusOk
-                    ImageTypes.STATUS_WARN -> imageStatusWarn
-                    else -> imageStatusAlert
+            when (medicine.calculateMedicineStatus(context)) {
+                MedicineStatus.STATUS_OK -> {
+                    binding.statusImage.setImageDrawable(imageStatusOk)
+                    binding.statusImage.contentDescription = context.getString(R.string.status_ok)
                 }
-            )
-            binding.itemSelectedCheckMark.visibility = if (isActivated) View.VISIBLE else View.GONE
+                MedicineStatus.STATUS_WARN -> {
+                    binding.statusImage.setImageDrawable(imageStatusWarn)
+                    binding.statusImage.contentDescription = context.getString(R.string.status_warning)
+                }
+                MedicineStatus.STATUS_CRITICAL -> {
+                    binding.statusImage.setImageDrawable(imageStatusAlert)
+                    binding.statusImage.contentDescription = context.getString(R.string.status_critical)
+                }
+            }
             binding.root.isActivated = isActivated
         }
 
