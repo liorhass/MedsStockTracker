@@ -1,19 +1,20 @@
 package com.liorhass.android.medsstocktracker.editmedicine
 
-import android.app.Application
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.databinding.library.baseAdapters.BR
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import com.liorhass.android.medsstocktracker.MSTApplication
 import com.liorhass.android.medsstocktracker.R
-import com.liorhass.android.medsstocktracker.database.LoggedEvent
-import com.liorhass.android.medsstocktracker.database.LoggedEventsDao
+import com.liorhass.android.medsstocktracker.database.*
 import com.liorhass.android.medsstocktracker.util.OneTimeEvent
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
 import com.liorhass.android.medsstocktracker.util.NavigationEventWithNoArguments
-import com.liorhass.android.medsstocktracker.database.Medicine
-import com.liorhass.android.medsstocktracker.database.MedicinesDao
 import com.liorhass.android.medsstocktracker.model.DoseFormatter
 import com.liorhass.android.medsstocktracker.model.estimateCurrentStock
+import com.liorhass.android.medsstocktracker.util.equalsAlmost
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.math.absoluteValue
@@ -21,34 +22,21 @@ import kotlin.math.absoluteValue
 class EditMedicineViewModel(private val medicineId: Long,
                             private val medicinesDao: MedicinesDao,
                             private val loggedEventsDao: LoggedEventsDao,
-                            private val application: Application) :
-    ViewModel() {
+                            private val mstApplication: MSTApplication) :
+    AndroidViewModel(mstApplication) {
 
-    // Must be initialized to an empty Medicine because we use data binding to draw our screen, and
-    // the drawing happens before we initialize medicine from the DB in our init{} block. It's
-    // simpler that way than to have to check for null in the data binding in the XML code.
-    class MedicineStr {
-        var name: String = ""
-        var dailyDose: String = ""
-        var currentStock: String = ""
-    }
-    private val _medicineStr = MutableLiveData(MedicineStr())
-    val medicineStr: LiveData<MedicineStr>
-        get() = _medicineStr
-
-/*//todo:2brm
-    private val _saveButtonEnabled = MutableLiveData<Boolean>(false)
+    val formFields = FormFields()
+    private val _saveButtonEnabled = MutableLiveData(false)
     val saveButtonEnabled: LiveData<Boolean>
         get() = _saveButtonEnabled
-*/
 
     // These observables are observed by the fragment. We use them to flag an input error in one of
     // the input fields.
     private val _resetInputErrors = MutableLiveData<OneTimeEvent<Boolean>>()
     val resetInputErrors: LiveData<OneTimeEvent<Boolean>>
         get() = _resetInputErrors
-    private val _medicineNameInputError = MutableLiveData<OneTimeEvent<Boolean>>()
-    val medicineNameInputError: LiveData<OneTimeEvent<Boolean>>
+    private val _medicineNameInputError = MutableLiveData<OneTimeEvent<ErrorCodes>>()
+    val medicineNameInputError: LiveData<OneTimeEvent<ErrorCodes>>
         get() = _medicineNameInputError
     private val _dailyDoseInputError = MutableLiveData<OneTimeEvent<Boolean>>()
     val dailyDoseInputError: LiveData<OneTimeEvent<Boolean>>
@@ -56,22 +44,35 @@ class EditMedicineViewModel(private val medicineId: Long,
     private val _currentStockInputError = MutableLiveData<OneTimeEvent<Boolean>>()
     val currentStockInputError: LiveData<OneTimeEvent<Boolean>>
         get() = _currentStockInputError
+    enum class ErrorCodes {
+        NO_NAME,
+        NAME_ALREADY_EXIST
+    }
 
     // This observable is observed by the fragment. We use it to tell it to show a dialog
-    class DialogInfo (val title: String, val message: String, val dismissButtonText: String)
+    class DialogInfo (val type: DialogTypes, val title: String = "", val message: String = "", val dismissButtonText: String = "")
     private val _showDialog = MutableLiveData<OneTimeEvent<DialogInfo>>()
     val showDialog: LiveData<OneTimeEvent<DialogInfo>>
         get() = _showDialog
+    enum class DialogTypes {
+        HELP_DIALOG,
+        ADD_TO_STOCK
+    }
 
-    private var medicine: Medicine = Medicine()
+    // This observable is observed by the fragment. We use it to tell it to close the dialog
+    private val _closeDialog = MutableLiveData<OneTimeEvent<Boolean>>()
+    val closeDialog: LiveData<OneTimeEvent<Boolean>>
+        get() = _closeDialog
 
-    private var job = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + job)
-
+    // This observable is observed by the fragment. We use it to tell it to navigate to another fragment
     private val _navigateTo = MutableLiveData<OneTimeEvent<NavigationEventWithNoArguments>>() // https://medium.com/androiddevelopers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150
     val navigationTrigger : LiveData<OneTimeEvent<NavigationEventWithNoArguments>>
         get() = _navigateTo
 
+    private var job = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + job)
+
+    private var medicine: Medicine = Medicine()
     init {
         initMedicine()
     }
@@ -88,17 +89,8 @@ class EditMedicineViewModel(private val medicineId: Long,
                     medicine = med
                     Timber.v("initializeMedicine(): name=${medicine.name}")
                     populateFormFields()  // Update the UI fields
-
-/* todo 2brm
-                    // When we populate the form's text fields, it generate a call to their onTextChanged()
-                    // callback. Since this callback is where we enable the "save" button, it turns out that
-                    // the button is always enabled. To prevent that, we disable it here immediately after
-                    // the form load, and then enable it normally in the onTextChanged() callback of
-                    // any of the text fields.
-                    _saveButtonEnabled.value = false
-                    Timber.d("initMedicine() _saveButtonEnabled.value = false  ===========")
-*/
                 }
+                _saveButtonEnabled.value = false  // Disable the Save button until the user inputs something
             }
         }
     }
@@ -111,27 +103,29 @@ class EditMedicineViewModel(private val medicineId: Long,
     }
 
     private fun populateFormFields() {
-        val medicineStr = MedicineStr()
-        medicineStr.name         = medicine.name
-        medicineStr.dailyDose    = DoseFormatter.formatDose(medicine.dailyDose)
-        medicineStr.currentStock = DoseFormatter.formatDose(medicine.estimateCurrentStock())
-        _medicineStr.value = medicineStr // Setting the LiveData's value informs all observers of the new data
+        formFields.name = medicine.name
+        formFields.dailyDose = DoseFormatter.formatDose(medicine.dailyDose)
+        formFields.currentStock = DoseFormatter.formatDose(medicine.estimateCurrentStock())
+        formFields.notes = medicine.notes
     }
 
-    fun onSave(medicineName: String, dailyDoseStr: String, currentStockStr: String) {
-        Timber.v("save(): medicineName='${medicineName}'  dailyDose='${dailyDoseStr}'  currentStock='${currentStockStr}'")
+    fun onSave(medicineName: String, dailyDoseStr: String, currentStockStr: String, notes: String) {
+        Timber.v("save(): medicineName='${medicineName}'  dailyDose='${dailyDoseStr}'  currentStock='${currentStockStr}'  notes='${notes}'")
 
-        // If the user had errors, and re-submits the form, we need to clear the error markings
-        // before we re-evaluate the form. Otherwise the old error markings remain on the screen.
+        // If previously the user had errors markings on some of the form fields, and now they re-submit
+        // the form, we need to clear the error markings before we re-evaluate the form. Otherwise
+        // the old error markings remain on the screen.
         _resetInputErrors.value = OneTimeEvent(true)
 
-        if (updateMedicine(medicineName, dailyDoseStr, currentStockStr)) {
-            // Trigger navigation back to MedicineListFragment
-            _navigateTo.value = OneTimeEvent(
-                NavigationEventWithNoArguments(
-                    NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_LIST_FRAGMENT
+        uiScope.launch {
+            if (updateMedicine(medicineName, dailyDoseStr, currentStockStr, notes)) {
+                // Trigger navigation back to MedicineListFragment
+                _navigateTo.value = OneTimeEvent(
+                    NavigationEventWithNoArguments(
+                        NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_LIST_FRAGMENT
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -140,13 +134,20 @@ class EditMedicineViewModel(private val medicineId: Long,
      * this fragment (because there was an error in an input field, and we're waiting for the user
      * to correct it).
      */
-    private fun updateMedicine(medicineName: String, dailyDoseStr: String, currentStockStr: String): Boolean {
+    private suspend fun updateMedicine(rawMedicineName: String, dailyDoseStr: String, currentStockStr: String, rawNotes: String): Boolean {
         var inputError = false
         var dailyDose = 0.0
         var currentStock = 0.0
+        val medicineName = rawMedicineName.trim()
+        val notes = rawNotes.trim()
 
-        if (medicineName.isBlank()) {
-            _medicineNameInputError.value = OneTimeEvent(true)
+        if (medicineName.isEmpty()) {
+            _medicineNameInputError.value = OneTimeEvent(ErrorCodes.NO_NAME)
+            inputError = true
+        }
+        if (medicine.id == Medicine.ID_OF_UNINITIALIZED_MEDICINE && isMedicineNameAlreadyInDatabase(medicineName)) {
+            // Trying to create a new medicine with a name that already exists
+            _medicineNameInputError.value = OneTimeEvent(ErrorCodes.NAME_ALREADY_EXIST)
             inputError = true
         }
         try {
@@ -164,14 +165,14 @@ class EditMedicineViewModel(private val medicineId: Long,
             inputError = true
         }
         if (! inputError) {
-            updateMedicine(medicineName, dailyDose, currentStock)
+            updateMedicine(medicineName, dailyDose, currentStock, notes)
             return true
         }
         return false
     }
 
-    private fun updateMedicine(medicineName: String, dailyDose: Double, currentStock: Double) {
-        Timber.d("updateMedicine(): medicineName=$medicineName dailyDose=$dailyDose currentStock=$currentStock")
+    private suspend fun updateMedicine(medicineName: String, dailyDose: Double, currentStock: Double, notes: String) {
+        Timber.d("updateMedicine(): medicineName=$medicineName dailyDose=$dailyDose currentStock=$currentStock notes=$notes")
         // Reset the time-of-last-alert, so we'll generate a "normal" (non-critical) alert
         medicine.timeOfLastAlert = 0L //todo: is this should be here or only when creating new medicine?
 
@@ -181,33 +182,39 @@ class EditMedicineViewModel(private val medicineId: Long,
             medicine.dailyDose = dailyDose
             medicine.nAvailableOriginally = currentStock
             medicine.nAvailableUpdateDateAndTime = System.currentTimeMillis()
+            medicine.notes = notes
             updateMedicineInDatabase(medicine)
 
             logEvent(LoggedEvent.TYPE_CREATE_MEDICINE,
                 medicineName,
-                application.getString(R.string.logged_event_new_med, medicine.name,
-                medicine.dailyDose, medicine.nAvailableOriginally))
+                mstApplication.getString(R.string.logged_event_new_med, medicine.name,
+                medicine.dailyDose, medicine.nAvailableOriginally, medicine.notes))
         } else {
             // We're updating an existing medicine
             val logMsg = StringBuilder()
             var somethingChanged = false
             if (medicine.name != medicineName) {
                 // "Name changed from " + medicine.name + " to " + medicineName + ". "
-                logMsg.append(application.getString(R.string.logged_event_name_changed, medicine.name, medicineName))
+                logMsg.append(mstApplication.getString(R.string.logged_event_name_changed, medicine.name, medicineName))
                 medicine.name = medicineName
                 somethingChanged = true
             }
             if ((medicine.dailyDose - dailyDose).absoluteValue > 0.01) {
                 // "Daily-Dose changed from " + medicine.dailyDose + " to " + dailyDose + ". "
-                logMsg.append(application.getString(R.string.logged_event_daily_dose_changed, medicine.dailyDose, dailyDose))
+                logMsg.append(mstApplication.getString(R.string.logged_event_daily_dose_changed, medicine.dailyDose, dailyDose))
                 medicine.dailyDose = dailyDose
                 somethingChanged = true
             }
             if ((medicine.nAvailableOriginally - currentStock).absoluteValue > 0.01) {
                 // "Available-Dose changed from " + medicine.nAvailableOriginally + " to " + currentStock + "."
-                logMsg.append(application.getString(R.string.logged_event_current_stock_changed, medicine.nAvailableOriginally, currentStock))
+                logMsg.append(mstApplication.getString(R.string.logged_event_current_stock_changed, medicine.nAvailableOriginally, currentStock))
                 medicine.nAvailableOriginally = currentStock
                 medicine.nAvailableUpdateDateAndTime = System.currentTimeMillis()
+                somethingChanged = true
+            }
+            if (medicine.notes != notes) {
+                logMsg.append(mstApplication.getString(R.string.logged_event_notes_changed, medicine.notes, notes))
+                medicine.notes = notes
                 somethingChanged = true
             }
             if (somethingChanged) {
@@ -218,79 +225,178 @@ class EditMedicineViewModel(private val medicineId: Long,
         }
     }
 
-    private fun updateMedicineInDatabase(updatedMedicine: Medicine) {
-        uiScope.launch {
-            withContext(Dispatchers.IO) {
-                if (updatedMedicine.id == Medicine.ID_OF_UNINITIALIZED_MEDICINE) {
-                    medicinesDao.insertMedicine(updatedMedicine)
-                } else {
-                    Timber.d("Updating medicine: name=${updatedMedicine.name}  dailyDose=${updatedMedicine.dailyDose}")
-                    medicinesDao.updateMedicine(updatedMedicine)
-                }
+    private suspend fun updateMedicineInDatabase(updatedMedicine: Medicine) {
+        withContext(Dispatchers.IO) {
+            if (updatedMedicine.id == Medicine.ID_OF_UNINITIALIZED_MEDICINE) {
+                medicinesDao.insertMedicine(updatedMedicine)
+            } else {
+                Timber.d("Updating medicine: name=${updatedMedicine.name}  dailyDose=${updatedMedicine.dailyDose}")
+                medicinesDao.updateMedicine(updatedMedicine)
             }
         }
     }
 
-    private fun logEvent(eventType: Int, medicineName: String, msg: String) {
-        uiScope.launch {
-            withContext(Dispatchers.IO) {
-                val currentTime = System.currentTimeMillis()
-                val loggedEvent = LoggedEvent(dateAndTime = currentTime, medicineName = medicineName,
-                    type = eventType, text = msg)
-                loggedEventsDao.insertLoggedEvent(loggedEvent)
-            }
+    private suspend fun logEvent(eventType: Int, medicineName: String, msg: String) {
+        withContext(Dispatchers.IO) {
+            val currentTime = System.currentTimeMillis()
+            val loggedEvent = LoggedEvent(dateAndTime = currentTime, medicineName = medicineName,
+                type = eventType, text = msg)
+            loggedEventsDao.insertLoggedEvent(loggedEvent)
         }
     }
 
     fun onCancel() {
         Timber.v("Cancel the edit-med")
+        // Trigger navigation back to MedicineListFragment
         _navigateTo.value = OneTimeEvent(
             NavigationEventWithNoArguments(
                 NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_LIST_FRAGMENT
             )
-        ) // Trigger navigation back to MedicineListFragment
+        )
+    }
+
+    fun onAddButtonClick() {
+        Timber.v("onAddButtonClick()")
+        // Should open the dialog that let the user enter how many pills to add to the current stock
+        _showDialog.value = OneTimeEvent(DialogInfo(DialogTypes.ADD_TO_STOCK))
     }
 
     fun onHelpMedicineName() {
         _showDialog.value = OneTimeEvent(
             DialogInfo(
-                application.getString(R.string.help_dialog_medicine_name_title),
-                application.getString(R.string.help_dialog_medicine_name_msg),
-                application.getString(R.string.help_dialog_btn)
+                DialogTypes.HELP_DIALOG,
+                mstApplication.getString(R.string.help_dialog_medicine_name_title),
+                mstApplication.getString(R.string.help_dialog_medicine_name_msg),
+                mstApplication.getString(R.string.help_dialog_btn)
             )
         )
     }
     fun onHelpDailyDose() {
         _showDialog.value = OneTimeEvent(
             DialogInfo(
-                application.getString(R.string.help_dialog_daily_dose_title),
-                application.getString(R.string.help_dialog_daily_dose_msg),
-                application.getString(R.string.help_dialog_btn)
+                DialogTypes.HELP_DIALOG,
+                mstApplication.getString(R.string.help_dialog_daily_dose_title),
+                mstApplication.getString(R.string.help_dialog_daily_dose_msg),
+                mstApplication.getString(R.string.help_dialog_btn)
             )
         )
     }
     fun onHelpCurrentStock() {
         _showDialog.value = OneTimeEvent(
             DialogInfo(
-                application.getString(R.string.help_dialog_current_stock_title),
-                application.getString(R.string.help_dialog_current_stock_msg),
-                application.getString(R.string.help_dialog_btn)
+                DialogTypes.HELP_DIALOG,
+                mstApplication.getString(R.string.help_dialog_current_stock_title),
+                mstApplication.getString(R.string.help_dialog_current_stock_msg),
+                mstApplication.getString(R.string.help_dialog_btn)
+            )
+        )
+    }
+    fun onHelpNotes() {
+        _showDialog.value = OneTimeEvent(
+            DialogInfo(
+                DialogTypes.HELP_DIALOG,
+                mstApplication.getString(R.string.help_dialog_notes_title),
+                mstApplication.getString(R.string.help_dialog_notes_msg),
+                mstApplication.getString(R.string.help_dialog_btn)
             )
         )
     }
 
-/*//todo:2brm
-    fun onTextFieldChanged() {
-        Timber.d("onTextFieldChanged():")
-        _saveButtonEnabled.value = true
-        Timber.d("onTextFieldChanged() _saveButtonEnabled.value = true  ===========")
+    private suspend fun isMedicineNameAlreadyInDatabase(medicineName: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            // Read all medicines from the database
+            val medicines = AppDatabase.getInstance(mstApplication).medicineDao.getAllMedicines()
+            for (medicine in medicines) {
+                if (medicineName.equals(medicine.name, true)) {
+                    return@withContext true
+                }
+            }
+            false
+        }
     }
-*/
 
     // Called when the ViewModel is destroyed
     override fun onCleared() {
         super.onCleared()
         job.cancel()
+    }
+
+    private fun onFormFieldChanged() {
+        if (_saveButtonEnabled.value != true) {
+            _saveButtonEnabled.value = true
+        }
+    }
+
+    // An observable class that holds the form's fields (by two-way-binding). See https://developer.android.com/topic/libraries/data-binding/observability#observable_objects
+    inner class FormFields : BaseObservable() {
+        @get:Bindable
+        var name: String = ""
+            set(value) {
+                if (field != value) {
+                    Timber.v("name(): value='$value'  field='$field'")
+                    field = value
+                    onFormFieldChanged()
+                    notifyPropertyChanged(BR.name) // Notify observers of a new value.
+                }
+            }
+
+        @get:Bindable
+        var dailyDose: String = ""
+            set(value) {
+                if (field != value) {
+                    Timber.v("dailyDose: value='$value'  field='$field'")
+                    field = value
+                    onFormFieldChanged()
+                    notifyPropertyChanged(BR.dailyDose) // Notify observers of a new value.
+                }
+            }
+
+        @get:Bindable
+        var currentStock: String = ""
+            set(value) {
+                if (field != value) {
+                    Timber.v("currentStock: value='$value'  field='$field'")
+                    field = value
+                    onFormFieldChanged()
+                    notifyPropertyChanged(BR.currentStock) // Notify observers of a new value.
+                }
+            }
+
+        @get:Bindable
+        var notes: String = ""
+            set(value) {
+                if (field != value) {
+                    Timber.v("notes: value='$value'  field='$field'")
+                    field = value
+                    onFormFieldChanged()
+                    notifyPropertyChanged(BR.notes) // Notify observers of a new value.
+                }
+            }
+    }
+
+    fun onAddToCurrentStock(quantityToAddStr: String) {
+        var quantityToAdd = 0.0
+        try {
+            quantityToAdd = quantityToAddStr.toDouble()
+        } catch (e: Exception) {
+            Timber.d("quantityToAdd format error")
+            // Silently ignore these errors for now. todo: handle this error nicer
+        }
+        if (! quantityToAdd.equalsAlmost(0.0)) {
+            var prevQuantity = 0.0
+            try {
+                prevQuantity = formFields.currentStock.toDouble()
+            } catch (e: Exception) {/* ignore*/}
+            prevQuantity += quantityToAdd
+            formFields.currentStock = DoseFormatter.formatDose(prevQuantity)
+        }
+        // Close the dialog
+        _closeDialog.value = OneTimeEvent(true)
+    }
+
+    fun onCancelAddToCurrentStock() {
+        // Close the dialog
+        _closeDialog.value = OneTimeEvent(true)
     }
 }
 

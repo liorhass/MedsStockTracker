@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         // Configuration options for NavigationUI methods that interact with our Toolbar
         // https://developer.android.com/guide/navigation/navigation-ui#create_a_toolbar
         val appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.medicineListFragment/*, R.id.event_list_fragment*/), binding.drawerLayout)
+            setOf(R.id.medicineListFragment/*, R.id.importFragment*/), binding.drawerLayout)
         binding.mainAppScreen.toolbar.setupWithNavController(navController, appBarConfiguration)
         binding.navView.setupWithNavController(navController)
 

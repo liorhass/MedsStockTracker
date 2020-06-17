@@ -28,6 +28,7 @@ data class LoggedEvent (
 //        const val TYPE_INCREMENT_MEDICINE_STOCK: Int = 2
         const val TYPE_CREATE_MEDICINE: Int = 3
         const val TYPE_DELETE_MEDICINE: Int = 4
+        const val TYPE_IMPORT_MEDICINE: Int = 5
     }
 }
 

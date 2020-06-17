@@ -52,6 +52,7 @@ class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Con
     inner class ViewHolder(private val binding: FragmentMedicineListItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(medicine: Medicine, isActivated: Boolean) {
             binding.medicine = medicine
+            binding.notesLine.visibility = if (medicine.notes.isBlank()) View.GONE else View.VISIBLE
             when (medicine.calculateMedicineStatus(context)) {
                 MedicineStatus.STATUS_OK -> {
                     binding.statusImage.setImageDrawable(imageStatusOk)

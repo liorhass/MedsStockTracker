@@ -45,9 +45,11 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Acamol With Long Name" />
 
+            <!-- android:shrinkColumns="1" is needed for when we have long notes field that needs to be wrapped -->
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:shrinkColumns="1"
                 android:layout_marginTop="4dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/medicineName"
@@ -143,6 +145,30 @@
                         android:text="@{MedicineLogic.getLastUpdatedStr(medicine, context)}"
                         android:textAppearance="@style/normalTextOnMedicineList"
                         tools:text="Sun, Sep 1" />
+                </TableRow>
+
+                <!-- Notes: -->
+                <TableRow
+                    android:id="@+id/notesLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="2sp">
+                    <TextView
+                        android:id="@+id/notesTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text="@string/notes"
+                        android:textAppearance="@style/normalTextOnMedicineList"/>
+
+                    <TextView
+                        android:id="@+id/notesText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="6sp"
+                        android:text="@{medicine.notes}"
+                        android:textAppearance="@style/normalTextOnMedicineList"
+                        tools:text="Lorem ipsum long note" />
                 </TableRow>
             </TableLayout>
 

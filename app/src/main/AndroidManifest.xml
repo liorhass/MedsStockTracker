@@ -5,20 +5,57 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".MyApplication"
+        android:name=".MSTApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MedsStockTracker">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".fimport.ImportActivity"
+                  android:noHistory="true"> <!-- After the import we navigate to MainActivity. This flag prevents the back button from taking the user back to the import activity from there -->
+            <!-- See: https://stackoverflow.com/a/39885806/1071117 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:mimeType="*/*" />
+                <data android:host="*" />
+                <!-- Work around Android's ugly primitive PatternMatcher implementation that can't
+                     cope with finding a . early in the path unless it's explicitly matched. -->
+                <!--
+                                <data android:pathPattern=".*\\.mstdbx" />
+                                <data android:pathPattern=".*\\..*\\.mstdbx" />
+                                <data android:pathPattern=".*\\..*\\..*\\.mstdbx" />
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\.mstdbx" />
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mstdbx" />
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mstdbx" />
+                -->
+            </intent-filter>
+        </activity>
+
+        <!-- File provider for our "share" functionality where we send a file with a DB replica -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.liorhass.android.medsstocktracker.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
 
     </application>
 </manifest>

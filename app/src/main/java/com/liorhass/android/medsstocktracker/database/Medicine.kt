@@ -26,7 +26,16 @@ data class Medicine(
     var dailyDose: Double = 0.0,
 
     @ColumnInfo(name = "time_of_last_alert")
-    var timeOfLastAlert: Long = -1
+    var timeOfLastAlert: Long = -1,
+
+    @ColumnInfo(name = "notes")
+    var notes: String = "",
+
+    @ColumnInfo(name = "prev_increment")
+    var prev_increment: Int = 0,
+
+    @ColumnInfo(name = "prev_prev_increment")
+    var prev_prev_increment: Int = 0
 )
 {
     companion object {

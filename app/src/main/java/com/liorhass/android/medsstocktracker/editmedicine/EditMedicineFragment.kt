@@ -1,22 +1,26 @@
 package com.liorhass.android.medsstocktracker.editmedicine
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.liorhass.android.medsstocktracker.MSTApplication
 import com.liorhass.android.medsstocktracker.R
-import com.liorhass.android.medsstocktracker.util.OneTimeEvent
+import com.liorhass.android.medsstocktracker.database.AppDatabase
+import com.liorhass.android.medsstocktracker.databinding.DialogAddToMedicineStockBinding
+import com.liorhass.android.medsstocktracker.databinding.FragmentEditMedicineBinding
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
 import com.liorhass.android.medsstocktracker.util.NavigationEventWithNoArguments
-
-import com.liorhass.android.medsstocktracker.database.AppDatabase
-import com.liorhass.android.medsstocktracker.databinding.FragmentEditMedicineBinding
+import com.liorhass.android.medsstocktracker.util.OneTimeEvent
 import timber.log.Timber
 
 class EditMedicineFragment : Fragment() {
@@ -25,6 +29,7 @@ class EditMedicineFragment : Fragment() {
 
     private lateinit var binding: FragmentEditMedicineBinding
     private lateinit var viewModel: EditMedicineViewModel
+    private var addToStockDialog: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,11 +38,12 @@ class EditMedicineFragment : Fragment() {
         binding = FragmentEditMedicineBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val application = requireNotNull(this.activity).application
+        val application = requireNotNull(this.activity).application as MSTApplication
         val medicineDao = AppDatabase.getInstance(application).medicineDao
         val loggedEventsDao = AppDatabase.getInstance(application).loggedEventDao
         val medicineId = args.medicineId
-        val vewModelFactory = EditMedicineViewModelFactory(medicineId, medicineDao, loggedEventsDao, application)
+        val vewModelFactory =
+            EditMedicineViewModelFactory(medicineId, medicineDao, loggedEventsDao, application)
         viewModel = ViewModelProvider(this, vewModelFactory).get(EditMedicineViewModel::class.java)
         viewModel.navigationTrigger.observe(viewLifecycleOwner, Observer {
             navigateToDestination(it)
@@ -55,22 +61,32 @@ class EditMedicineFragment : Fragment() {
             resetErrorMarkings(it)
         })
         viewModel.showDialog.observe(viewLifecycleOwner, Observer {
-            showHelpDialog(it)
+            showDialog(it)
+        })
+        viewModel.closeDialog.observe(viewLifecycleOwner, Observer {
+            closeDialog(it)
         })
 
         binding.viewModel = viewModel
+        binding.formFields = viewModel.formFields
 
         return binding.root
     }
 
     // Some input error in the medicine name field (probably was left empty). We should display an
     // error message.
-    private fun medicineNameInputError(oneTimeEvent: OneTimeEvent<Boolean>) {
-        if (oneTimeEvent.getContentIfNotHandled() != null) {
+    private fun medicineNameInputError(oneTimeEvent: OneTimeEvent<EditMedicineViewModel.ErrorCodes>) {
+        val errorCode = oneTimeEvent.getContentIfNotHandled()
+        if (errorCode != null) {
             Timber.d("medicineNameInputError() setting error field")
-            binding.medicineNameLayout.error = getString(R.string.err_msg_medicine_name)
+            val errorMsg = when (errorCode) {
+                EditMedicineViewModel.ErrorCodes.NO_NAME -> getString(R.string.err_msg_invalid_medicine_name)
+                EditMedicineViewModel.ErrorCodes.NAME_ALREADY_EXIST -> getString(R.string.err_msg_duplicate_medicine_name)
+            }
+            binding.medicineNameLayout.error = errorMsg
         }
     }
+
     // Some input error in the daily dose field (probably was left empty). We should display an
     // error message.
     private fun dailyDoseInputError(oneTimeEvent: OneTimeEvent<Boolean>) {
@@ -79,6 +95,7 @@ class EditMedicineFragment : Fragment() {
             binding.dailyDoseLayout.error = getString(R.string.err_msg_daily_dose)
         }
     }
+
     // Some input error in the current stock field (probably was left empty). We should display an
     // error message.
     private fun currentStockInputError(oneTimeEvent: OneTimeEvent<Boolean>) {
@@ -101,23 +118,60 @@ class EditMedicineFragment : Fragment() {
     }
 
     private fun navigateToDestination(navigationEvent: OneTimeEvent<NavigationEventWithNoArguments>) {
-        navigationEvent.getContentIfNotHandled()?.let { event -> // Only proceed if the event has never been handled
-            when(event.destination) {
-                NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_LIST_FRAGMENT ->
-                    findNavController().navigate(EditMedicineFragmentDirections.actionEditMedicineFragmentToMedicineListFragment())
-                else -> Timber.wtf("navigateToDestination(): Unknown destination: ${event.destination}")
+        navigationEvent.getContentIfNotHandled()
+            ?.let { event -> // Only proceed if the event has never been handled
+                when (event.destination) {
+                    NavigationDestinations.NAVIGATION_DESTINATION_MEDICINE_LIST_FRAGMENT ->
+                        findNavController().navigate(EditMedicineFragmentDirections.actionEditMedicineFragmentToMedicineListFragment())
+                    else -> Timber.wtf("navigateToDestination(): Unknown destination: ${event.destination}")
+                }
+            }
+    }
+
+    private fun showDialog(dialogInfoEvent: OneTimeEvent<EditMedicineViewModel.DialogInfo>) {
+        dialogInfoEvent.getContentIfNotHandled()?.let {
+            when (it.type) {
+                EditMedicineViewModel.DialogTypes.HELP_DIALOG -> showHelpDialog(it)
+                EditMedicineViewModel.DialogTypes.ADD_TO_STOCK -> showAddToStockDialog()
             }
         }
     }
 
-    private fun showHelpDialog(dialogInfoEvent: OneTimeEvent<EditMedicineViewModel.DialogInfo>) {
-        dialogInfoEvent.getContentIfNotHandled()?.let {
-            Timber.v("showHelpDialog()")
-            MaterialAlertDialogBuilder(context)
-                .setTitle(it.title)
-                .setMessage(it.message)
-                .setNegativeButton(it.dismissButtonText) { _, _ -> }
-                .show()
+    private fun showHelpDialog(dialogInfo: EditMedicineViewModel.DialogInfo) {
+        Timber.v("showHelpDialog()")
+        MaterialAlertDialogBuilder(context)
+            .setTitle(dialogInfo.title)
+            .setMessage(dialogInfo.message)
+            .setNegativeButton(dialogInfo.dismissButtonText) { _, _ -> }
+            .show()
+    }
+
+    private fun showAddToStockDialog() {
+        Timber.v("showAddToStockDialog()")
+        val dialogBinding= DialogAddToMedicineStockBinding.inflate(LayoutInflater.from(requireContext()))
+        dialogBinding.viewModel = viewModel
+
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setView(dialogBinding.root)
+        addToStockDialog = dialogBuilder.create()
+        addToStockDialog?.show()
+        // Place focus on the text field and open the keyboard to save the user a redundant click. From: https://stackoverflow.com/a/13056259/1071117
+        dialogBinding.userInput.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                view.post {  // Post a runnable that will show the soft keyboard. Ignore exceptions since this is only a nice-to-have (e.g. only god knows what will happen on a device with hardware keyboard)
+                    try {
+                        (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+                    } catch (e: Exception) {/*ignore*/ }
+                }
+            }
+        }
+        dialogBinding.userInput.requestFocus()
+    }
+
+    private fun closeDialog(oneTimeEvent: OneTimeEvent<Boolean>) {
+        if (oneTimeEvent.getContentIfNotHandled() != null) {
+            addToStockDialog?.dismiss()
+            addToStockDialog = null
         }
     }
 }

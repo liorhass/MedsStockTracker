@@ -6,7 +6,6 @@ import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.Medicine
 import com.liorhass.android.medsstocktracker.util.CalendarCalculator
 import com.liorhass.android.medsstocktracker.util.humanFriendlyDate
-import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import kotlin.math.floor
@@ -21,7 +20,6 @@ object DoseFormatter {
         }
     }
     fun formatDose(dose: Double): String {
-        Timber.d("formatDose(): dose=$dose")
         return formatter.format(dose)
     }
 }

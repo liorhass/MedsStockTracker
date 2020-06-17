@@ -12,11 +12,15 @@
 package com.liorhass.android.medsstocktracker.medicinelist
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -25,14 +29,15 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
-import com.liorhass.android.medsstocktracker.*
+import com.google.android.material.snackbar.Snackbar
+import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.AppDatabase
 import com.liorhass.android.medsstocktracker.database.Medicine
 import com.liorhass.android.medsstocktracker.databinding.FragmentMedicineListBinding
 import com.liorhass.android.medsstocktracker.util.AlertDialogFragment
-import com.liorhass.android.medsstocktracker.util.OneTimeEvent
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
 import com.liorhass.android.medsstocktracker.util.NavigationEventWithLongArgument
+import com.liorhass.android.medsstocktracker.util.OneTimeEvent
 import timber.log.Timber
 
 
@@ -63,6 +68,9 @@ class MedicineListFragment : Fragment() {
         })
         viewModel.confirmDeletion.observe(viewLifecycleOwner, Observer {
             confirmMedicineDeletion(it)
+        })
+        viewModel.launchShare.observe(viewLifecycleOwner, Observer {
+            confirmSharing(it)
         })
 
         binding = FragmentMedicineListBinding.inflate(inflater, container, false)
@@ -173,26 +181,31 @@ class MedicineListFragment : Fragment() {
 
     @SuppressLint("ApplySharedPref")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        var sortBy: Int = SORT_BY_URGENCY
         when (item.itemId) {
             R.id.menuSortByUrgency -> {
+                doSortCriteriaSelection(SORT_BY_URGENCY)
             }
-            R.id.menuSortAlphabetically -> //            Log.d(TAG, "sort Alphabetically");
-                sortBy = SORT_ALPHABETICALLY
+            R.id.menuSortAlphabetically -> {
+                doSortCriteriaSelection(SORT_ALPHABETICALLY)
+            }
+            R.id.menuShare -> {
+                viewModel.doShare()
+            }
             else -> return super.onOptionsItemSelected(item)
         }
-        val sharedPreferences: SharedPreferences =
-            PreferenceManager.getDefaultSharedPreferences(activity)
-        val previousSortBy =
-            sharedPreferences.getInt(getString(R.string.pref_medicine_sort_key), SORT_BY_URGENCY)
-        if (previousSortBy != sortBy) {
-            sharedPreferences.edit().putInt(getString(R.string.pref_medicine_sort_key), sortBy).commit()
+        return true
+    }
+
+    private fun doSortCriteriaSelection(sortCriteria: Int) {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
+        val previousSortBy = sharedPreferences.getInt(getString(R.string.pref_medicine_sort_key), SORT_BY_URGENCY)
+        if (previousSortBy != sortCriteria) {
+            sharedPreferences.edit().putInt(getString(R.string.pref_medicine_sort_key), sortCriteria).apply()
             // Tell our recyclerView to redraw. (This is done by re-assigning its adapter)
             adapter.reSortData()
             binding.medicineListRecyclerView.adapter = adapter
             requireActivity().invalidateOptionsMenu() // So our onPrepareOptionsMenu() will get called next time the menu is opened
         }
-        return true
     }
 
     private fun navigateToDestination(navigationEvent: OneTimeEvent<NavigationEventWithLongArgument>) {
@@ -245,6 +258,45 @@ class MedicineListFragment : Fragment() {
                     }
                 }
             ).show(requireActivity().supportFragmentManager, AlertDialogFragment::class.java.name)
+        }
+    }
+
+    private fun confirmSharing(oneTimeEvent: OneTimeEvent<Uri>) {
+        val uri: Uri? = oneTimeEvent.getContentIfNotHandled()
+        if (uri != null) {
+            AlertDialogFragment.newInstance(
+                getString(R.string.share_confirmation_dialog_title),
+                getString(R.string.share_confirmation_dialog_msg),
+                getString(R.string.btn_continue),
+                getString(R.string.cancel),
+                object : AlertDialogFragment.Companion.AlertDialogListener {
+                    override fun positiveButtonClicked() {
+                        // Handle positive button
+                        launchShareChooser(uri)
+                    }
+                    override fun negativeButtonClicked() {}
+                }
+            ).show(requireActivity().supportFragmentManager, AlertDialogFragment::class.java.name)
+        }
+    }
+
+    private fun launchShareChooser(uri: Uri) {
+        Timber.v("launchShare(): Uri=$uri")
+        // See: https://medium.com/androiddevelopers/sharing-content-between-android-apps-2e6db9d1368b  and  https://stackoverflow.com/a/52843942/1071117
+        val shareIntent = ShareCompat.IntentBuilder.from(requireActivity())
+            .setStream(uri)
+            .setType(context?.contentResolver?.getType(uri))
+            .setSubject(getString(R.string.share_subject_string))
+            .intent
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            startActivity(shareIntent)
+        } catch (e: ActivityNotFoundException) {
+            Snackbar.make(
+                binding.medicineListCoordinatorLayout,
+                getString(R.string.no_app_support_share),
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 

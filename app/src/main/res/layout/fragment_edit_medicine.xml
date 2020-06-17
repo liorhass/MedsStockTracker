@@ -11,6 +11,9 @@
         <variable
             name="viewModel"
             type="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineViewModel" />
+        <variable
+            name="formFields"
+            type="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineViewModel.FormFields" />
     </data>
 
     <LinearLayout
@@ -49,8 +52,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/save"
-                android:onClick="@{(v) -> viewModel.onSave(medicineName.getText().toString(), dailyDose.getText().toString(), currentStock.getText().toString())}"
-                />
+                android:enabled="@{viewModel.saveButtonEnabled}"
+                android:onClick="@{(v) -> viewModel.onSave(medicineName.getText().toString(), dailyDose.getText().toString(), currentStock.getText().toString(), notes.getText().toString())}" />
         </LinearLayout>
 
         <View
@@ -71,6 +74,7 @@
                 android:paddingRight="10dp"
                 >
 
+                <!--  Medicine Name  -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/medicineNameLayout"
                     style="@style/MST.TextInputLayout"
@@ -90,7 +94,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="text"
                         android:maxLines="1"
-                        android:text="@{viewModel.medicineStr.name}" />
+                        android:text="@={formFields.name}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -110,7 +114,7 @@
                     android:contentDescription="@string/help"
                     android:onClick="@{(v) -> viewModel.onHelpMedicineName()}" />
 
-
+                <!--  Daily Dose  -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/dailyDoseLayout"
                     style="@style/MST.TextInputLayout"
@@ -128,7 +132,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:text="@{viewModel.medicineStr.dailyDose}" />
+                        android:text="@={formFields.dailyDose}" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
@@ -146,6 +150,7 @@
                     android:contentDescription="@string/help"
                     android:onClick="@{(v) -> viewModel.onHelpDailyDose()}" />
 
+                <!--  current stock  -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/currentStockLayout"
                     style="@style/MST.TextInputLayout"
@@ -163,7 +168,7 @@
                         android:layout_height="wrap_content"
                         android:inputType="numberDecimal"
                         android:maxLines="1"
-                        android:text="@{viewModel.medicineStr.currentStock}" /><!--"@{MedicineLogic.calculateCurrentStockString(viewModel.medicine)}"-->
+                        android:text="@={formFields.currentStock}" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <ImageButton
@@ -181,6 +186,56 @@
                     android:contentDescription="@string/help"
                     android:onClick="@{(v) -> viewModel.onHelpCurrentStock()}" />
 
+                <Button
+                    android:id="@+id/addButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="__"
+                    app:icon="@drawable/ic_add_24dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:onClick="@{(v) -> viewModel.onAddButtonClick()}"
+                    app:layout_constraintTop_toBottomOf="@id/currentStockLayout"
+                    app:layout_constraintEnd_toEndOf="@id/currentStockLayout"
+                    />
+
+                <!--  notes  -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/notesLayout"
+                    style="@style/MST.TextInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/notes"
+                    app:layout_constraintEnd_toEndOf="@+id/medicineNameLayout"
+                    app:layout_constraintStart_toStartOf="@+id/medicineNameLayout"
+                    app:layout_constraintTop_toBottomOf="@+id/addButton">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:maxLines="5"
+                        android:text="@={formFields.notes}" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/notesHelpButton"
+                    style="@style/MST.TextInputHelpButtonLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:layout_constraintStart_toStartOf="@+id/medicineNameHelpButton"
+                    app:layout_constraintEnd_toEndOf="@+id/medicineNameHelpButton"
+                    app:layout_constraintTop_toTopOf="@+id/notesLayout"
+                    app:layout_constraintBottom_toBottomOf="@+id/notesLayout"
+                    app:srcCompat="@drawable/ic_help_outline_24dp"
+                    android:padding="8dp"
+                    android:contentDescription="@string/help"
+                    android:onClick="@{(v) -> viewModel.onHelpNotes()}" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

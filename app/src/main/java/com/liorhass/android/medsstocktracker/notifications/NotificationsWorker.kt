@@ -40,15 +40,13 @@ class NotificationsWorker(private val context: Context, params: WorkerParameters
     private val sharedPreferences: SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
-    private lateinit var notificationManager: NotificationManagerCompat
-
-
     override suspend fun doWork(): Result {
         Timber.d("===  doWork()  sec=${System.currentTimeMillis()/1000} ===")
-        // Read all medicines from the database
-        val medicines = AppDatabase.getInstance(context).medicineDao.getAllMedicines()
 
         if (isNowTimeForNotifications()) {
+            // Read all medicines from the database
+            val medicines = AppDatabase.getInstance(context).medicineDao.getAllMedicines()
+
             generateAllNotifications(getMedicinesWithNotifications(medicines))
         }
 
@@ -65,19 +63,21 @@ class NotificationsWorker(private val context: Context, params: WorkerParameters
         val offset = TimeZone.getDefault().getOffset(now) // the amount of time in milliseconds to add to UTC to get local time.
         val dayNow = (now + offset) / (1000 * 3600 * 24)
         if (dayNow != dayOfLastCheck) {
+            val defaultEarliestTime = "07:00"
             // We haven't generated notifications today yet. Check if the time has arrived
             val earliestTimeStr =
                 sharedPreferences.getString(applicationContext.getString(
-                    R.string.pref_notifications_time_key), "06:00")
+                    R.string.pref_notifications_time_key), defaultEarliestTime)
             val earliestTimeMsec: Int =
-                1000 * (3600 * parseHour(earliestTimeStr!!) + 60 * parseMinute(earliestTimeStr))
+                1000 * (3600 * parseHour(earliestTimeStr ?: defaultEarliestTime) +
+                        60 * parseMinute(earliestTimeStr ?: defaultEarliestTime))
             return if ((now + offset) % (1000 * 3600 * 24) > earliestTimeMsec) {
-                sharedPreferences.edit().putLong(PREF_DAY_OF_LAST_CHECK, dayNow).apply()
-                true
-            } else {
-                // It's too early in the day
-                false
-            }
+                       sharedPreferences.edit().putLong(PREF_DAY_OF_LAST_CHECK, dayNow).apply()
+                       true
+                   } else {
+                       // It's too early in the day
+                       false
+                   }
         } else {
             return false
         }
@@ -119,7 +119,7 @@ class NotificationsWorker(private val context: Context, params: WorkerParameters
             return
         }
 
-        notificationManager = NotificationManagerCompat.from(applicationContext)
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // For Android v8 and up we generate 2 different notifications: one for critically low
@@ -181,7 +181,7 @@ class NotificationsWorker(private val context: Context, params: WorkerParameters
         ringtoneUri: Uri?,
         vibratePattern: LongArray?,
         led: Boolean,
-        notificationManager: NotificationManagerCompat?,
+        notificationManager: NotificationManagerCompat,
         notificationId: Int
     ) {
         if (medicines.isEmpty()) {
@@ -228,7 +228,7 @@ class NotificationsWorker(private val context: Context, params: WorkerParameters
         val pendingIntent: PendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
         notificationBuilder.setContentIntent(pendingIntent)
 
-        notificationManager?.notify(notificationId, notificationBuilder.build())
+        notificationManager.notify(notificationId, notificationBuilder.build())
     }
 }
 

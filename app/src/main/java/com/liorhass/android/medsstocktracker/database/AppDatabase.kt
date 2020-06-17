@@ -16,7 +16,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val loggedEventDao: LoggedEventsDao
 
     companion object {
-        const val DATABASE_VERSION = 8
+        const val DATABASE_VERSION = 9
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -32,6 +32,14 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        // Add 3 fields to the medicines table: notes, prev_increment, prev_prev_increment
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                Timber.i("MIGRATION_8_9.migrate()")
+                migrateMedicinesTableV8toV9(database)
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             synchronized(this) {
                 var instance = INSTANCE
@@ -41,6 +49,7 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java, "medsStockTracker"
                     )
                         .addMigrations(MIGRATION_7_8)
+                        .addMigrations(MIGRATION_8_9)
                         .build()
                     INSTANCE = instance
                 }
@@ -96,6 +105,13 @@ abstract class AppDatabase : RoomDatabase() {
 
             // Rename the new table to its "normal" name
             database.execSQL("ALTER TABLE eventLogs_new RENAME TO eventLogs")
+        }
+
+        // Add 3 fields: notes, prev_increment, prev_prev_increment
+        fun migrateMedicinesTableV8toV9(database: SupportSQLiteDatabase) {
+            database.execSQL("ALTER TABLE medicines ADD notes TEXT DEFAULT '' NOT NULL")
+            database.execSQL("ALTER TABLE medicines ADD prev_increment INTEGER DEFAULT 0 NOT NULL")
+            database.execSQL("ALTER TABLE medicines ADD prev_prev_increment INTEGER DEFAULT 0 NOT NULL")
         }
     }
 }

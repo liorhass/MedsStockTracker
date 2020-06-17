@@ -12,6 +12,7 @@ import com.liorhass.android.medsstocktracker.R
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 fun hideSoftKeyboard(activity: Activity) {
     val inputManager =
@@ -134,5 +135,11 @@ fun setUserSelectedTheme(context: Context) {
     }
     setDefaultNightMode(mode)
 }
+
+/**
+ * Compare two doubles
+ * @return true if they are almost equal (or actually equal), false if they are not equal
+ */
+fun Double.equalsAlmost(other: Double) = abs(this - other) < 0.00001  // See: https://medium.com/dont-code-me-on-that/double-equality-in-kotlin-f99392cba0e4
 
 

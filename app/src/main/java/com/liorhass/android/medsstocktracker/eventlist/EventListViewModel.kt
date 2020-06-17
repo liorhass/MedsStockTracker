@@ -14,6 +14,8 @@ class EventListViewModel(private val loggedEventsDao: LoggedEventsDao) : ViewMod
     // So we can cancel coroutines started by this ViewModel.
     private var viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
+
+    // No worries here because Room always runs on background thread when returning observables
     var loggedEvents = loggedEventsDao.getAllLoggedEvents()
 
     // Trigger display of a confirmation dialog before deletion of events

@@ -1,19 +1,27 @@
 package com.liorhass.android.medsstocktracker.medicinelist
 
 import android.app.Application
+import android.net.Uri
 import android.text.Spanned
+import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.selection.Selection
-import com.liorhass.android.medsstocktracker.util.OneTimeEvent
-import com.liorhass.android.medsstocktracker.util.NavigationDestinations
-import com.liorhass.android.medsstocktracker.util.NavigationEventWithLongArgument
+import com.google.gson.Gson
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.LoggedEvent
 import com.liorhass.android.medsstocktracker.database.LoggedEventsDao
 import com.liorhass.android.medsstocktracker.database.MedicinesDao
+import com.liorhass.android.medsstocktracker.util.NavigationDestinations
+import com.liorhass.android.medsstocktracker.util.NavigationEventWithLongArgument
+import com.liorhass.android.medsstocktracker.util.OneTimeEvent
+import com.liorhass.android.medsstocktracker.util.SharedData
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.io.File
 
 class MedicineListViewModel(private val medicinesDao: MedicinesDao,
                             private val loggedEventDao: LoggedEventsDao,
@@ -34,6 +42,11 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
     private val _confirmDeletion = MutableLiveData<OneTimeEvent<Boolean>>()
     val confirmDeletion : LiveData<OneTimeEvent<Boolean>>
         get() = _confirmDeletion
+
+    // Trigger a launch of a share action
+    private val _launchShare = MutableLiveData<OneTimeEvent<Uri>>()
+    val launchShare : LiveData<OneTimeEvent<Uri>>
+        get() = _launchShare
 
     fun onNavigateToMedicineDetails(medicineId: Long) {
         Timber.v("onNavigateToMedicineDetails() id=$medicineId")
@@ -79,6 +92,51 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
     )
     val isMedicineListEmpty = Transformations.map(medicines) {
         it?.isEmpty()
+    }
+
+    fun doShare() {
+        Timber.v("doShare()")
+        uiScope.launch {
+            var uri: Uri? = null
+            withContext(Dispatchers.IO) {
+                uri = dumpDbToJsonFile()
+            }
+            // Launching the sharing action needs access to the activity that is doing the
+            // launching. Since we don't want to have a reference to the activity in the
+            // viewModel, we'll have to pass the actual job of creating the Intent and
+            // launching it to our thread.
+            if (uri != null) {
+                _launchShare.value = OneTimeEvent(uri!!)
+            }
+        }
+    }
+
+    /**
+     * Dump the database to a file in Json format. The file must be located in a specific directory
+     * in order to be able to be shared later. This location is specified in xml/filepaths.xml and
+     * pointed to in the manifest file (FileProvider section). For edtails see:
+     * https://developer.android.com/training/secure-file-sharing/setup-sharing#DefineMetaData
+     * @return Uri of the Json file on success, null otherwise.
+     */
+    private fun dumpDbToJsonFile(): Uri? {
+        val sharedData = SharedData(medicines = medicines.value)
+        val jsonStr = Gson().toJson(sharedData)
+        Timber.d("JSON: $jsonStr")
+
+        return try {
+            val path = File(application.filesDir, SharedData.Constants.DIR_NAME)
+            if (!path.exists()) {
+                path.mkdirs()
+            }
+
+            val file = File(path, SharedData.Constants.FILE_NAME)
+            file.writeText(jsonStr)
+            Timber.d("dumpDbToJsonFile(): Wrote DB to $path/${SharedData.Constants.FILE_NAME}")
+            getUriForFile(application, SharedData.Constants.AUTHORITY, file)
+        } catch (e: Exception) {
+            Timber.e("doShare(): Exception: ${e.localizedMessage}")
+            null
+        }
     }
 
     // Called when the ViewModel is destroyed. Cancel all ongoing coroutines
