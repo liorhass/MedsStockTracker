@@ -21,6 +21,7 @@ import com.liorhass.android.medsstocktracker.databinding.FragmentEditMedicineBin
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
 import com.liorhass.android.medsstocktracker.util.NavigationEventWithNoArguments
 import com.liorhass.android.medsstocktracker.util.OneTimeEvent
+import kotlinx.android.synthetic.main.activity_main_app_screen.*
 import timber.log.Timber
 
 class EditMedicineFragment : Fragment() {
@@ -73,6 +74,11 @@ class EditMedicineFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setScreenTitle()
+    }
+
     // Some input error in the medicine name field (probably was left empty). We should display an
     // error message.
     private fun medicineNameInputError(oneTimeEvent: OneTimeEvent<EditMedicineViewModel.ErrorCodes>) {
@@ -115,6 +121,10 @@ class EditMedicineFragment : Fragment() {
             binding.dailyDoseLayout.error = null
             binding.currentStockLayout.error = null
         }
+    }
+
+    private fun setScreenTitle() {
+        requireActivity().toolbar.title = viewModel.getScreenTitle()
     }
 
     private fun navigateToDestination(navigationEvent: OneTimeEvent<NavigationEventWithNoArguments>) {

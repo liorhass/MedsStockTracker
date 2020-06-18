@@ -18,8 +18,7 @@
         android:label="@string/fragment_title_events" />
     <fragment
         android:id="@+id/editMedicineFragment"
-        android:name="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineFragment"
-        android:label="@string/fragment_title_edit_medicine" >
+        android:name="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineFragment" >
         <action
             android:id="@+id/action_editMedicineFragment_to_medicine_list_fragment"
             app:destination="@id/medicineListFragment" />

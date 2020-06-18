@@ -19,6 +19,7 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.math.absoluteValue
 
+
 class EditMedicineViewModel(private val medicineId: Long,
                             private val medicinesDao: MedicinesDao,
                             private val loggedEventsDao: LoggedEventsDao,
@@ -398,5 +399,11 @@ class EditMedicineViewModel(private val medicineId: Long,
         // Close the dialog
         _closeDialog.value = OneTimeEvent(true)
     }
-}
 
+    fun getScreenTitle(): String {
+        return when (medicineId) {
+            Medicine.ID_OF_UNINITIALIZED_MEDICINE -> mstApplication.getString(R.string.fragment_title_new_medicine)
+            else -> mstApplication.getString(R.string.fragment_title_edit_medicine)
+        }
+    }
+}

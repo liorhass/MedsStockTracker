@@ -12,6 +12,7 @@
 //     https://www.raywenderlich.com/1560485-android-recyclerview-tutorial-with-kotlin
 //
 // todo: Play Store deployment article: https://www.raywenderlich.com/6569516-android-app-distribution-tutorial-from-zero-to-google-play-store
+// todo: Color contrast: https://support.google.com/accessibility/android/answer/7158390
 //
 package com.liorhass.android.medsstocktracker
 
