@@ -1,12 +1,12 @@
 package com.liorhass.android.medsstocktracker.editmedicine
 
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -149,7 +149,7 @@ class EditMedicineFragment : Fragment() {
 
     private fun showHelpDialog(dialogInfo: EditMedicineViewModel.DialogInfo) {
         Timber.v("showHelpDialog()")
-        MaterialAlertDialogBuilder(context)
+        MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
             .setTitle(dialogInfo.title)
             .setMessage(dialogInfo.message)
             .setNegativeButton(dialogInfo.dismissButtonText) { _, _ -> }
@@ -161,7 +161,7 @@ class EditMedicineFragment : Fragment() {
         val dialogBinding= DialogAddToMedicineStockBinding.inflate(LayoutInflater.from(requireContext()))
         dialogBinding.viewModel = viewModel
 
-        val dialogBuilder = AlertDialog.Builder(requireContext())
+        val dialogBuilder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
         dialogBuilder.setView(dialogBinding.root)
         addToStockDialog = dialogBuilder.create()
         addToStockDialog?.show()

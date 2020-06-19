@@ -125,7 +125,6 @@ class EventListFragment : Fragment() {
     }
 
 
-//    @SuppressLint("ApplySharedPref")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menuSortOrder -> {

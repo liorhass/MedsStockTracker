@@ -27,7 +27,8 @@
             style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:theme="@style/ThemeOverlay.MedsStockTracker.Button">
 
             <Button
                 android:id="@+id/buttonCancel"
@@ -195,11 +196,12 @@
                     app:icon="@drawable/ic_add_24dp"
                     app:iconGravity="textStart"
                     app:iconPadding="0dp"
+                    android:theme="@style/ThemeOverlay.MedsStockTracker.Button"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                     android:onClick="@{(v) -> viewModel.onAddButtonClick()}"
                     app:layout_constraintTop_toBottomOf="@id/currentStockLayout"
                     app:layout_constraintEnd_toEndOf="@id/currentStockLayout"
-                    />
+                    tools:ignore="HardcodedText" />
 
                 <!--  notes  -->
                 <com.google.android.material.textfield.TextInputLayout

@@ -5,8 +5,9 @@ import android.app.Dialog
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.liorhass.android.medsstocktracker.R
 
 /**
  * Show an alert dialog with a positive and a negative buttons.
@@ -78,7 +79,7 @@ class AlertDialogFragment : DialogFragment() {
         val negativeButtonLabel: String? = arguments?.getString(NEGATIVE_BUTTON_LABEL)
         onClickListener = arguments?.getParcelable(CLICK_LISTENER)
 
-        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(this.requireActivity())
+        val alertDialogBuilder = MaterialAlertDialogBuilder(this.requireActivity(), R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
         alertDialogBuilder.setTitle(title)
         alertDialogBuilder.setMessage(msg)
         alertDialogBuilder.setPositiveButton(positiveButtonLabel)

@@ -37,4 +37,17 @@
         <item name="colorNavDrawerHeaderBGEnd">@color/MSTColorPrimaryVariant</item>
     </style>
 
+    <!-- The text color of buttons of material dialog is always colorPrimary (on both light and dark
+         themes. As a result, on dark theme, the text is barely readable (our primary color is dark).
+         So we use this theme overlay change the colorPrimary.
+         See:  https://material.io/develop/android/components/buttons/#theming-buttons -->
+    <style name="ThemeOverlay.MedsStockTracker.Button" parent="">
+        <item name="colorPrimary">@color/MTSColorButtonText</item>
+    </style>
+    <!-- Buttons in dialogs suffer the same as other buttons.
+         See:  https://material.io/develop/android/components/dialogs/#theming-dialogs -->
+    <style name="ThemeOverlay.MedsStockTracker.MaterialAlertDialog" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/MTSColorButtonText</item>
+    </style>
+
 </resources>

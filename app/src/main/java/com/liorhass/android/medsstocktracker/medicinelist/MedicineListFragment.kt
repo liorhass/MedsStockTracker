@@ -21,6 +21,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ShareCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -29,10 +30,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.AppDatabase
 import com.liorhass.android.medsstocktracker.database.Medicine
+import com.liorhass.android.medsstocktracker.databinding.DialogFirstRunMsgBinding
 import com.liorhass.android.medsstocktracker.databinding.FragmentMedicineListBinding
 import com.liorhass.android.medsstocktracker.util.AlertDialogFragment
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
@@ -100,6 +103,13 @@ class MedicineListFragment : Fragment() {
         setHasOptionsMenu(true)
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (itIsFirstRunAfterAppInstall()) {
+            showFirstRunDialog()
+        }
     }
 
     private fun buildSelectionTracker(adapter: MedicineListAdapter) {
@@ -300,8 +310,37 @@ class MedicineListFragment : Fragment() {
         }
     }
 
+    private fun itIsFirstRunAfterAppInstall(): Boolean {
+        val sharedPreferences: SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(activity)
+        return sharedPreferences.getBoolean(FIRST_RUN_KEY, true)
+    }
+
+    private fun showFirstRunDialog() {
+        val dialogBinding = DialogFirstRunMsgBinding.inflate(layoutInflater)
+        val dialogBuilder = MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
+        dialogBuilder.setView(dialogBinding.root)
+        dialogBinding.message.text = HtmlCompat.fromHtml(getString(R.string.first_run_msg), HtmlCompat.FROM_HTML_MODE_LEGACY)
+        dialogBuilder.setCancelable(false)
+        dialogBuilder.setPositiveButton(getString(R.string.i_accept)) { dialog, _ ->
+            val sharedPreferences: SharedPreferences =
+                PreferenceManager.getDefaultSharedPreferences(activity)
+            sharedPreferences.edit().putBoolean(FIRST_RUN_KEY, false).apply()
+            dialog.dismiss()
+        }
+        dialogBuilder.setNegativeButton(getString(R.string.decline)) { _, _ ->
+            activity?.finishAndRemoveTask()
+        }
+        val dialog = dialogBuilder.create()
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+    }
+
     companion object {
         const val SORT_BY_URGENCY = 1
         const val SORT_ALPHABETICALLY = 2
+
+        const val FIRST_RUN_KEY = "first_run" // in SharedPreferences
     }
 }

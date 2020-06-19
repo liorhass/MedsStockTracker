@@ -32,4 +32,6 @@
     <color name="colorListItemSelected">#CCCCCC</color>
 
     <color name="ic_launcher_background">#FFFFFF</color>
+
+    <color name="MTSColorButtonText">#00695C</color> <!-- Same as primary -->
 </resources>
