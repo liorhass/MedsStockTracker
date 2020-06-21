@@ -30,6 +30,18 @@ class EditMedicineViewModel(private val medicineId: Long,
     private val _saveButtonEnabled = MutableLiveData(false)
     val saveButtonEnabled: LiveData<Boolean>
         get() = _saveButtonEnabled
+    private val _addPrevButtonIsVisible = MutableLiveData(false)
+    val addPrevButtonIsVisible: LiveData<Boolean>
+        get() = _addPrevButtonIsVisible
+    private val _addPrevButtonText = MutableLiveData("")
+    val addPrevButtonText: LiveData<String>
+        get() = _addPrevButtonText
+    private val _addPrevPrevButtonIsVisible = MutableLiveData(false)
+    val addPrevPrevButtonIsVisible: LiveData<Boolean>
+        get() = _addPrevPrevButtonIsVisible
+    private val _addPrevPrevButtonText = MutableLiveData("")
+    val addPrevPrevButtonText: LiveData<String>
+        get() = _addPrevPrevButtonText
 
     // These observables are observed by the fragment. We use them to flag an input error in one of
     // the input fields.
@@ -108,6 +120,14 @@ class EditMedicineViewModel(private val medicineId: Long,
         formFields.dailyDose = DoseFormatter.formatDose(medicine.dailyDose)
         formFields.currentStock = DoseFormatter.formatDose(medicine.estimateCurrentStock())
         formFields.notes = medicine.notes
+        if (medicine.prevIncrement > 0) {
+            _addPrevButtonText.value = medicine.prevIncrement.toString()
+            _addPrevButtonIsVisible.value = true
+            if (medicine.prevPrevIncrement > 0) {
+                _addPrevPrevButtonText.value = medicine.prevPrevIncrement.toString()
+                _addPrevPrevButtonIsVisible.value = true
+            }
+        }
     }
 
     fun onSave(medicineName: String, dailyDoseStr: String, currentStockStr: String, notes: String) {
@@ -119,7 +139,7 @@ class EditMedicineViewModel(private val medicineId: Long,
         _resetInputErrors.value = OneTimeEvent(true)
 
         uiScope.launch {
-            if (updateMedicine(medicineName, dailyDoseStr, currentStockStr, notes)) {
+            if (verifyFieldsAndUpdateMedicine(medicineName, dailyDoseStr, currentStockStr, notes)) {
                 // Trigger navigation back to MedicineListFragment
                 _navigateTo.value = OneTimeEvent(
                     NavigationEventWithNoArguments(
@@ -135,7 +155,7 @@ class EditMedicineViewModel(private val medicineId: Long,
      * this fragment (because there was an error in an input field, and we're waiting for the user
      * to correct it).
      */
-    private suspend fun updateMedicine(rawMedicineName: String, dailyDoseStr: String, currentStockStr: String, rawNotes: String): Boolean {
+    private suspend fun verifyFieldsAndUpdateMedicine(rawMedicineName: String, dailyDoseStr: String, currentStockStr: String, rawNotes: String): Boolean {
         var inputError = false
         var dailyDose = 0.0
         var currentStock = 0.0
@@ -207,6 +227,7 @@ class EditMedicineViewModel(private val medicineId: Long,
                 somethingChanged = true
             }
             if ((medicine.nAvailableOriginally - currentStock).absoluteValue > 0.01) {
+                updatePrevIncrement(currentStock)
                 // "Available-Dose changed from " + medicine.nAvailableOriginally + " to " + currentStock + "."
                 logMsg.append(mstApplication.getString(R.string.logged_event_current_stock_changed, medicine.nAvailableOriginally, currentStock))
                 medicine.nAvailableOriginally = currentStock
@@ -384,12 +405,7 @@ class EditMedicineViewModel(private val medicineId: Long,
             // Silently ignore these errors for now. todo: handle this error nicer
         }
         if (! quantityToAdd.equalsAlmost(0.0)) {
-            var prevQuantity = 0.0
-            try {
-                prevQuantity = formFields.currentStock.toDouble()
-            } catch (e: Exception) {/* ignore*/}
-            prevQuantity += quantityToAdd
-            formFields.currentStock = DoseFormatter.formatDose(prevQuantity)
+            addToCurrentStockFormField(quantityToAdd)
         }
         // Close the dialog
         _closeDialog.value = OneTimeEvent(true)
@@ -398,6 +414,34 @@ class EditMedicineViewModel(private val medicineId: Long,
     fun onCancelAddToCurrentStock() {
         // Close the dialog
         _closeDialog.value = OneTimeEvent(true)
+    }
+
+    fun onAddPrevButtonClick() {
+        addToCurrentStockFormField(medicine.prevIncrement.toDouble())
+    }
+
+    fun onAddPrevPrevButtonClick() {
+        addToCurrentStockFormField(medicine.prevPrevIncrement.toDouble())
+    }
+
+    private fun addToCurrentStockFormField(quantityToAdd: Double) {
+        var prevStock: Double
+        try {
+            prevStock = formFields.currentStock.toDouble()
+        } catch (e: Exception) {
+            Timber.e("addToCurrentStockFormField(): Can't convert form field to Double: ${e.localizedMessage}")
+            return
+        }
+        prevStock += quantityToAdd
+        formFields.currentStock = DoseFormatter.formatDose(prevStock)
+    }
+
+    private fun updatePrevIncrement(currentStock: Double) {
+        val quantityAdded = (0.5 + currentStock - medicine.nAvailableOriginally).toInt()
+        if (quantityAdded > 0  &&  quantityAdded != medicine.prevIncrement) {
+            medicine.prevPrevIncrement = medicine.prevIncrement
+            medicine.prevIncrement = quantityAdded
+        }
     }
 
     fun getScreenTitle(): String {

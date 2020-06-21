@@ -32,10 +32,10 @@ data class Medicine(
     var notes: String = "",
 
     @ColumnInfo(name = "prev_increment")
-    var prev_increment: Int = 0,
+    var prevIncrement: Int = 0,
 
     @ColumnInfo(name = "prev_prev_increment")
-    var prev_prev_increment: Int = 0
+    var prevPrevIncrement: Int = 0
 )
 {
     companion object {

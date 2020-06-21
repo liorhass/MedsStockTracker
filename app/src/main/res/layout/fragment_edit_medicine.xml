@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="android.view.View"/>
         <!-- Trick for using data-binding with extension functions: https://stackoverflow.com/questions/49898669/kotlin-extension-functions-databinding -->
         <import
             alias="MedicineLogic"
@@ -202,6 +203,38 @@
                     app:layout_constraintTop_toBottomOf="@id/currentStockLayout"
                     app:layout_constraintEnd_toEndOf="@id/currentStockLayout"
                     tools:ignore="HardcodedText" />
+
+                <Button
+                    android:id="@+id/addPrevButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_add_24dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:theme="@style/ThemeOverlay.MedsStockTracker.Button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:visibility="@{viewModel.addPrevButtonIsVisible ? View.VISIBLE : View.GONE}"
+                    android:text="@{viewModel.addPrevButtonText}"
+                    android:onClick="@{(v) -> viewModel.onAddPrevButtonClick()}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/addButton"
+                    app:layout_constraintEnd_toStartOf="@id/addButton"
+                    android:layout_marginEnd="8dp"/>
+
+                <Button
+                    android:id="@+id/addPrevPrevButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_add_24dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    android:theme="@style/ThemeOverlay.MedsStockTracker.Button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:visibility="@{viewModel.addPrevPrevButtonIsVisible ? View.VISIBLE : View.GONE}"
+                    android:text="@{viewModel.addPrevPrevButtonText}"
+                    android:onClick="@{(v) -> viewModel.onAddPrevPrevButtonClick()}"
+                    app:layout_constraintBaseline_toBaselineOf="@id/addButton"
+                    app:layout_constraintEnd_toStartOf="@id/addPrevButton"
+                    android:layout_marginEnd="8dp"/>
 
                 <!--  notes  -->
                 <com.google.android.material.textfield.TextInputLayout
