@@ -3,8 +3,8 @@
     <!-- When this is changed, chane also version-code and version-name in build.gradle and file->Project Structure...->Modules->app->Default Config  -->
     <string name="about_message">
         <![CDATA[
-        <p><big>  MedsStockTracker v2.1.1  </big></p>
-        <p>       Build: 20200621.1   </p>
+        <p><big>  MedsStockTracker v2.1.2  </big></p>
+        <p>       Build: 20200621.2   </p>
         <p>       Database: v%d   </p>
         <p>       &copy; Copyright &nbsp - &nbsp Lior Hass   </p>
         ]]>
@@ -258,7 +258,7 @@
     <string name="import_complete_dialog_msg">%1$d medicine(s) imported successfully.</string>
     <string name="import_complete_dialog_button_text">Got it</string>
 
-    <string name="add_to_current_stock">Add to Current Stock</string>
+    <string name="add_to_current_stock">Add to Stock</string>
     <string name="quantity_to_add">Quantity to add</string>
 
 </resources>

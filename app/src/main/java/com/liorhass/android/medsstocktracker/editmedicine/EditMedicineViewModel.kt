@@ -426,11 +426,16 @@ class EditMedicineViewModel(private val medicineId: Long,
 
     private fun addToCurrentStockFormField(quantityToAdd: Double) {
         var prevStock: Double
-        try {
-            prevStock = formFields.currentStock.toDouble()
-        } catch (e: Exception) {
-            Timber.e("addToCurrentStockFormField(): Can't convert form field to Double: ${e.localizedMessage}")
-            return
+        prevStock = if (formFields.currentStock.isBlank()) {
+            // We allow empty field. Treat it as if it was 0.0. Especially useful for when creating new medicines
+            0.0
+        } else {
+            try {
+                formFields.currentStock.toDouble()
+            } catch (e: Exception) {
+                Timber.e(e, "addToCurrentStockFormField(): Can't convert form field to Double. Field: '${formFields.currentStock}'")
+                return
+            }
         }
         prevStock += quantityToAdd
         formFields.currentStock = DoseFormatter.formatDose(prevStock)
