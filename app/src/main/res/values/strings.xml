@@ -3,8 +3,8 @@
     <!-- When this is changed, chane also version-code and version-name in build.gradle and file->Project Structure...->Modules->app->Default Config  -->
     <string name="about_message">
         <![CDATA[
-        <p><big>  MedsStockTracker v2.1.2  </big></p>
-        <p>       Build: 20200621.2   </p>
+        <p><big>  MedsStockTracker v2.1.3  </big></p>
+        <p>       Build: 20200808.1   </p>
         <p>       Database: v%d   </p>
         <p>       &copy; Copyright &nbsp - &nbsp Lior Hass   </p>
         ]]>

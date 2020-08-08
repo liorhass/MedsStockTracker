@@ -226,7 +226,7 @@ class EditMedicineViewModel(private val medicineId: Long,
                 medicine.dailyDose = dailyDose
                 somethingChanged = true
             }
-            if ((medicine.nAvailableOriginally - currentStock).absoluteValue > 0.01) {
+            if ((medicine.estimateCurrentStock() - currentStock).absoluteValue > 0.01) {
                 updatePrevIncrement(currentStock)
                 // "Available-Dose changed from " + medicine.nAvailableOriginally + " to " + currentStock + "."
                 logMsg.append(mstApplication.getString(R.string.logged_event_current_stock_changed, medicine.nAvailableOriginally, currentStock))
@@ -442,7 +442,7 @@ class EditMedicineViewModel(private val medicineId: Long,
     }
 
     private fun updatePrevIncrement(currentStock: Double) {
-        val quantityAdded = (0.5 + currentStock - medicine.nAvailableOriginally).toInt()
+        val quantityAdded = (0.5 + currentStock - medicine.estimateCurrentStock()).toInt()
         if (quantityAdded > 0  &&  quantityAdded != medicine.prevIncrement) {
             medicine.prevPrevIncrement = medicine.prevIncrement
             medicine.prevIncrement = quantityAdded
