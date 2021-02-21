@@ -43,7 +43,7 @@ class EventListFragment : Fragment() {
         })
 
         binding = FragmentEventListBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         // Set the adapter of our RecyclerView
         adapter = EventListAdapter(viewModel, requireNotNull(context))
@@ -64,7 +64,7 @@ class EventListFragment : Fragment() {
     // In our onCreate() we called setHasOptionsMenu(true). This then calls us here.
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.fragment_event_list, menu)
-        Timber.v("=============== onCreateOptionsMenu() finished")
+        Timber.v("onCreateOptionsMenu()")
     }
 
     private var selectionTracker : SelectionTracker<Long>? = null
@@ -177,14 +177,3 @@ class EventListFragment : Fragment() {
         const val SORT_DESCENDING = 2
     }
 }
-
-
-
-
-
-
-
-
-
-
-

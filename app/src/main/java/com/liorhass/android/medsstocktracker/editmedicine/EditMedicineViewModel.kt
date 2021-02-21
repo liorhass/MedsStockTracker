@@ -9,12 +9,9 @@ import androidx.lifecycle.MutableLiveData
 import com.liorhass.android.medsstocktracker.MSTApplication
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.*
-import com.liorhass.android.medsstocktracker.util.OneTimeEvent
-import com.liorhass.android.medsstocktracker.util.NavigationDestinations
-import com.liorhass.android.medsstocktracker.util.NavigationEventWithNoArguments
 import com.liorhass.android.medsstocktracker.model.DoseFormatter
 import com.liorhass.android.medsstocktracker.model.estimateCurrentStock
-import com.liorhass.android.medsstocktracker.util.equalsAlmost
+import com.liorhass.android.medsstocktracker.util.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.math.absoluteValue
@@ -81,6 +78,8 @@ class EditMedicineViewModel(private val medicineId: Long,
     private val _navigateTo = MutableLiveData<OneTimeEvent<NavigationEventWithNoArguments>>() // https://medium.com/androiddevelopers/livedata-with-snackbar-navigation-and-other-events-the-singleliveevent-case-ac2622673150
     val navigationTrigger : LiveData<OneTimeEvent<NavigationEventWithNoArguments>>
         get() = _navigateTo
+
+//    val numberFormat = NumberFormat.getInstance() // Current locale formatter
 
     private var job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + job)
@@ -172,16 +171,18 @@ class EditMedicineViewModel(private val medicineId: Long,
             inputError = true
         }
         try {
-            dailyDose = dailyDoseStr.toDouble()
+            dailyDose = dailyDoseStr.localeAgnosticToDouble()
+//            dailyDose = numberFormat.parse(dailyDoseStr)?.toDouble() ?: 0.0
         } catch (e: Exception) {
-            Timber.d("daily dose format error")
+            Timber.d("daily dose format error. dailyDose='$dailyDose'")
             _dailyDoseInputError.value = OneTimeEvent(true)
             inputError = true
         }
         try {
-            currentStock = currentStockStr.toDouble()
+            currentStock = currentStockStr.localeAgnosticToDouble()
+//            currentStock = numberFormat.parse(currentStockStr)?.toDouble() ?: 0.0
         } catch (e: Exception) {
-            Timber.d("current stock format error")
+            Timber.d("current stock format error. currentStock='$currentStock'")
             _currentStockInputError.value = OneTimeEvent(true)
             inputError = true
         }
@@ -397,11 +398,13 @@ class EditMedicineViewModel(private val medicineId: Long,
     }
 
     fun onAddToCurrentStock(quantityToAddStr: String) {
+        Timber.d("onAddToCurrentStock(): quantityToAddStr='$quantityToAddStr'")
         var quantityToAdd = 0.0
         try {
-            quantityToAdd = quantityToAddStr.toDouble()
+            quantityToAdd = quantityToAddStr.localeAgnosticToDouble()
+//            quantityToAdd = numberFormat.parse(quantityToAddStr)?.toDouble() ?: 0.0
         } catch (e: Exception) {
-            Timber.d("quantityToAdd format error")
+            Timber.d("onAddToCurrentStock() format error. quantityToAddStr='$quantityToAddStr'")
             // Silently ignore these errors for now. todo: handle this error nicer
         }
         if (! quantityToAdd.equalsAlmost(0.0)) {
@@ -425,13 +428,13 @@ class EditMedicineViewModel(private val medicineId: Long,
     }
 
     private fun addToCurrentStockFormField(quantityToAdd: Double) {
-        var prevStock: Double
-        prevStock = if (formFields.currentStock.isBlank()) {
+        var prevStock: Double = if (formFields.currentStock.isBlank()) {
             // We allow empty field. Treat it as if it was 0.0. Especially useful for when creating new medicines
             0.0
         } else {
             try {
-                formFields.currentStock.toDouble()
+                formFields.currentStock.localeAgnosticToDouble()
+//                numberFormat.parse(formFields.currentStock)?.toDouble() ?: 0.0
             } catch (e: Exception) {
                 Timber.e(e, "addToCurrentStockFormField(): Can't convert form field to Double. Field: '${formFields.currentStock}'")
                 return

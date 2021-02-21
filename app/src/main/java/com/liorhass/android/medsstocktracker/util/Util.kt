@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.preference.PreferenceManager
 import com.liorhass.android.medsstocktracker.R
 import timber.log.Timber
+import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
@@ -141,5 +142,32 @@ fun setUserSelectedTheme(context: Context) {
  * @return true if they are almost equal (or actually equal), false if they are not equal
  */
 fun Double.equalsAlmost(other: Double) = abs(this - other) < 0.00001  // See: https://medium.com/dont-code-me-on-that/double-equality-in-kotlin-f99392cba0e4
+
+/** toDouble() that accept both ',' and '.' as a decimal separator. Note: Only accepts digits
+ * and one decimal separator, meaning negative numbers are not supported. */
+fun String.localeAgnosticToDouble(): Double {
+    var result: Double = 0.0
+    var pastDecimalPoint = false
+    var decimalLocationValue = 0.1
+    for (c in this) {
+        if (c in '0'..'9') {
+            if (pastDecimalPoint) {
+                result += (c - '0') * decimalLocationValue
+                decimalLocationValue /= 10.0
+            } else {
+                result = result * 10.0 + (c - '0')
+            }
+        } else if (c == '.' || c == ',') {
+            if (pastDecimalPoint) {
+                // Don't allow more than one decimal separator
+                throw (NumberFormatException("Format error in string '$this'"))
+            }
+            pastDecimalPoint = true
+        } else {
+            throw (NumberFormatException("Format error in string '$this'"))
+        }
+    }
+    return result
+}
 
 

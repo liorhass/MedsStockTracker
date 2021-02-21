@@ -34,7 +34,7 @@ class EventListViewModel(private val loggedEventsDao: LoggedEventsDao) : ViewMod
         val iterator: Iterator<Long> = eventsToDelete.iterator()
         while(iterator.hasNext()) {
             val eventId = iterator.next()
-            Timber.v("deleteMedicines(): going to delete ID=${eventId}")
+            Timber.v("deleteEvents(): going to delete ID=${eventId}")
             uiScope.launch {
                 withContext(Dispatchers.IO) {
                     loggedEventsDao.deleteLoggedEvent(eventId)

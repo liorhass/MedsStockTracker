@@ -104,7 +104,7 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
             // Launching the sharing action needs access to the activity that is doing the
             // launching. Since we don't want to have a reference to the activity in the
             // viewModel, we'll have to pass the actual job of creating the Intent and
-            // launching it to our thread.
+            // launching it to our fragment.
             if (uri != null) {
                 _launchShare.value = OneTimeEvent(uri!!)
             }

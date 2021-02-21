@@ -77,7 +77,7 @@ class MedicineListFragment : Fragment() {
         })
 
         binding = FragmentMedicineListBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
         // Our Floating Action Button
