@@ -11,6 +11,9 @@
     <style name="normalTextOnMedicineList" parent="TextAppearance.MaterialComponents.Body2">
         <!-- Can be customized. Look here: https://material.io/develop/android/theming/typography/ -->
     </style>
+    <style name="medicineNameOnEventList" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <!-- Can be customized. Look here: https://material.io/develop/android/theming/typography/ -->
+    </style>
 
 
     <style name="MST.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">

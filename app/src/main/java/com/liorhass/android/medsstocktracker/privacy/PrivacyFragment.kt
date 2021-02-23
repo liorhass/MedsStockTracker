@@ -11,7 +11,7 @@ import com.liorhass.android.medsstocktracker.R
 class PrivacyFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         val topView: View = inflater.inflate(R.layout.fragment_privacy, container, false)
         val webView = topView.findViewById<View>(R.id.privacyWebView) as WebView

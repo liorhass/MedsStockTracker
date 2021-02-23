@@ -15,6 +15,7 @@ import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.Medicine
 import com.liorhass.android.medsstocktracker.databinding.FragmentMedicineListItemBinding
 import com.liorhass.android.medsstocktracker.model.*
+import java.util.*
 
 class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Context) :
     Adapter<MedicineListAdapter.ViewHolder>() {
@@ -74,7 +75,7 @@ class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Con
         fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
             object : ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getPosition(): Int = adapterPosition
-                override fun getSelectionKey(): Long? = itemId
+                override fun getSelectionKey(): Long = itemId
     //                override fun inSelectionHotspot(e: MotionEvent): Boolean = false // No selection-hotspot in our items
     //                override fun inDragRegion(e: MotionEvent): Boolean = true // No mouse driven band-selection in our items
             }
@@ -89,6 +90,7 @@ class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Con
         data = sortMedicineList(data)
     }
 
+    private val locale = Locale.getDefault()
     private fun sortMedicineList(origList: List<Medicine>): List<Medicine> {
         val sortBy =
             PreferenceManager.getDefaultSharedPreferences(context).getInt(
@@ -98,7 +100,7 @@ class MedicineListAdapter(val viewModel: MedicineListViewModel, val context: Con
         return if (sortBy == MedicineListFragment.SORT_BY_URGENCY) {
             origList.sortedBy {it.expectedRunOutDateAndTime}
         } else {
-            origList.sortedBy {it.name}
+            origList.sortedBy {it.name.toLowerCase(locale)} // Sort case-insensitive
         }
     }
 }

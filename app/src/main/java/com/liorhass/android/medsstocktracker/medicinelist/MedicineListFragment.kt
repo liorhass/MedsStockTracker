@@ -18,12 +18,12 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.app.ShareCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
@@ -55,10 +55,19 @@ class MedicineListFragment : Fragment() {
     private lateinit var adapter: MedicineListAdapter
     private var selectionTracker : SelectionTracker<Long>? = null
 
+    // Our ActivityResultLauncher<String!> to let the user pick a file for import-from-file
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        Timber.d("Got ActivityResult URI=$uri")
+        if (uri != null) {
+            val action = MedicineListFragmentDirections.actionMedicineListFragmentToImportDialogFragment(uri)
+            findNavController().navigate(action)
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Get a reference to our ViewModel using our ViewModelFactory
         val application = requireNotNull(this.activity).application
@@ -66,13 +75,13 @@ class MedicineListFragment : Fragment() {
         val loggedEventsDao = AppDatabase.getInstance(application).loggedEventDao
         val vewModelFactory = MedicineListViewModelFactory(medicinesDao, loggedEventsDao, application)
         viewModel = ViewModelProvider(this, vewModelFactory).get(MedicineListViewModel::class.java)
-        viewModel.navigationTrigger.observe(viewLifecycleOwner, Observer {
+        viewModel.navigationTrigger.observe(viewLifecycleOwner, {
             navigateToDestination(it)
         })
-        viewModel.confirmDeletion.observe(viewLifecycleOwner, Observer {
+        viewModel.confirmDeletion.observe(viewLifecycleOwner, {
             confirmMedicineDeletion(it)
         })
-        viewModel.launchShare.observe(viewLifecycleOwner, Observer {
+        viewModel.launchShare.observe(viewLifecycleOwner, {
             confirmSharing(it)
         })
 
@@ -93,7 +102,7 @@ class MedicineListFragment : Fragment() {
         adapter = MedicineListAdapter(viewModel, requireNotNull(context))
         binding.medicineListRecyclerView.adapter = adapter
         // Observe changes in the database, and reload the adapter with the updated data
-        viewModel.medicines.observe(viewLifecycleOwner, Observer {
+        viewModel.medicines.observe(viewLifecycleOwner, {
             adapter.setMedicines(it)
         })
 
@@ -200,6 +209,9 @@ class MedicineListFragment : Fragment() {
             }
             R.id.menuShare -> {
                 viewModel.doShare()
+            }
+            R.id.menuImport -> {
+                getContent.launch("*/*")
             }
             else -> return super.onOptionsItemSelected(item)
         }

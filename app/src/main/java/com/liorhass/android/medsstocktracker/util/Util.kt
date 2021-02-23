@@ -146,7 +146,7 @@ fun Double.equalsAlmost(other: Double) = abs(this - other) < 0.00001  // See: ht
 /** toDouble() that accept both ',' and '.' as a decimal separator. Note: Only accepts digits
  * and one decimal separator, meaning negative numbers are not supported. */
 fun String.localeAgnosticToDouble(): Double {
-    var result: Double = 0.0
+    var result = 0.0
     var pastDecimalPoint = false
     var decimalLocationValue = 0.1
     for (c in this) {

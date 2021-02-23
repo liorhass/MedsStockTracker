@@ -3,8 +3,8 @@
     <!-- When this is changed, chane also version-code and version-name in build.gradle and file->Project Structure...->Modules->app->Default Config  -->
     <string name="about_message">
         <![CDATA[
-        <p><big>  MedsStockTracker v2.1.4  </big></p>
-        <p>       Build: 20210221.1   </p>
+        <p><big>  MedsStockTracker v2.2.0  </big></p>
+        <p>       Build: 20210223.1   </p>
         <p>       Database: v%d   </p>
         <p>       &copy; Copyright &nbsp - &nbsp Lior Hass   </p>
         ]]>
@@ -63,7 +63,6 @@
     <string name="fragment_title_about">About</string>
     <string name="fragment_title_help">Help</string>
     <string name="fragment_title_privacy">Privacy</string>
-    <string name="activity_title_import">MedsStockTracker - Import</string>
 
 
     <!-- Notifications titles -->
@@ -203,6 +202,7 @@
     <string name="status_warning">Status is Warning</string>
     <string name="status_critical">Status is Critical</string>
     <string name="share">Share</string>
+    <string name="import_file">Import from file</string>
     <string name="share_subject_string">MedsStockTracker medicine list</string>
     <string name="no_app_support_share">No app that support sharing</string>
 
@@ -210,6 +210,7 @@
     <string name="share_confirmation_dialog_msg">You are about to export your medicine database. This enables you to share it with other people that also have MedsStockTracker installed on their devices, or store it as a backup for yourself.\n\nIt is however important to understand that when the export is performed, the information stored in the app (such as medicine names and their daily dosage) is copied to an UNENCRYPTED file, and anyone that can gain access to that file will be able to read that information.\n\nContinue?</string>
     <string name="btn_continue">Continue</string>
     <string name="btn_import">Import</string>
+    <string name="sort_order">Sort order</string>
 
 
     <string name="import_msg_head">

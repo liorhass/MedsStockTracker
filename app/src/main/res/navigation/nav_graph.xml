@@ -11,6 +11,9 @@
         <action
             android:id="@+id/action_medicine_list_fragment_to_editMedicineFragment"
             app:destination="@id/editMedicineFragment" />
+        <action
+            android:id="@+id/action_medicineListFragment_to_importDialogFragment"
+            app:destination="@id/importDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/eventListFragment"
@@ -21,7 +24,7 @@
         android:name="com.liorhass.android.medsstocktracker.editmedicine.EditMedicineFragment" >
         <action
             android:id="@+id/action_editMedicineFragment_to_medicine_list_fragment"
-            app:destination="@id/medicineListFragment" />
+            app:popUpTo="@id/medicineListFragment" />
         <argument
             android:name="medicineId"
             app:argType="long" />
@@ -42,4 +45,15 @@
         android:id="@+id/privacyFragment"
         android:name="com.liorhass.android.medsstocktracker.privacy.PrivacyFragment"
         android:label="@string/fragment_title_privacy" />
+    <fragment
+        android:id="@+id/importDialogFragment"
+        android:name="com.liorhass.android.medsstocktracker.fimport.ImportFragment"
+        android:label="ImportDialogFragment" >
+        <action
+            android:id="@+id/action_importDialogFragment_to_medicineListFragment"
+            app:popUpTo="@id/medicineListFragment" />
+        <argument
+            android:name="importSourceUri"
+            app:argType="android.net.Uri" />
+    </fragment>
 </navigation>

@@ -13,7 +13,7 @@ import com.liorhass.android.medsstocktracker.database.AppDatabase
 class AboutFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         val topView: View = inflater.inflate(R.layout.fragment_about, container, false)
         val textView = topView.findViewById<View>(R.id.about_version_text) as TextView

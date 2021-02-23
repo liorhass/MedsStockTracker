@@ -70,7 +70,7 @@ fun Medicine.getLastUpdatedStr(context: Context): String = humanFriendlyDate(nAv
 /**
  *  return something like "17 pills;  4 days"
  */
-fun Medicine.calculateCurrentStockConciseString(context: Context): String? {
+fun Medicine.calculateCurrentStockConciseString(context: Context): String {
     val daysLeft: Int = this.getDaysLeft()
     return if (daysLeft > 1000) {
         // If there are more than 1000 days left, we don't show the days

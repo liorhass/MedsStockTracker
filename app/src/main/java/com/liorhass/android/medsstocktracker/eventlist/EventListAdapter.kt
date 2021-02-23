@@ -46,7 +46,7 @@ class EventListAdapter(val viewModel: EventListViewModel, val context: Context) 
         fun getItemDetails(): ItemDetailsLookup.ItemDetails<Long> =
             object : ItemDetailsLookup.ItemDetails<Long>() {
                 override fun getPosition(): Int = adapterPosition
-                override fun getSelectionKey(): Long? = itemId
+                override fun getSelectionKey(): Long = itemId
     //                override fun inSelectionHotspot(e: MotionEvent): Boolean = false // No selection-hotspot in our items
     //                override fun inDragRegion(e: MotionEvent): Boolean = true // No mouse driven band-selection in our items
             }

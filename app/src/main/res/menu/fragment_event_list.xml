@@ -3,7 +3,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menuSortOrder"
-        android:title="Sort Order"
+        android:title="@string/sort_order"
         android:icon="@drawable/ic_sort_24dp"
         app:showAsAction="ifRoom"
         android:orderInCategory="10"

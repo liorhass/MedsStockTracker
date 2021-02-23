@@ -26,4 +26,9 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/menuImport"
+        android:title="@string/import_file"
+        android:icon="@drawable/ic_resource_import"
+        app:showAsAction="never"/>
 </menu>

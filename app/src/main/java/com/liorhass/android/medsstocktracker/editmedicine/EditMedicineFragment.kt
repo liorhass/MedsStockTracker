@@ -8,12 +8,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.liorhass.android.medsstocktracker.MSTApplication
+import com.liorhass.android.medsstocktracker.MainActivity
 import com.liorhass.android.medsstocktracker.R
 import com.liorhass.android.medsstocktracker.database.AppDatabase
 import com.liorhass.android.medsstocktracker.databinding.DialogAddToMedicineStockBinding
@@ -21,7 +21,7 @@ import com.liorhass.android.medsstocktracker.databinding.FragmentEditMedicineBin
 import com.liorhass.android.medsstocktracker.util.NavigationDestinations
 import com.liorhass.android.medsstocktracker.util.NavigationEventWithNoArguments
 import com.liorhass.android.medsstocktracker.util.OneTimeEvent
-import kotlinx.android.synthetic.main.activity_main_app_screen.*
+//import kotlinx.android.synthetic.main.activity_main_app_screen.*
 import timber.log.Timber
 
 class EditMedicineFragment : Fragment() {
@@ -35,7 +35,7 @@ class EditMedicineFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentEditMedicineBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -46,25 +46,25 @@ class EditMedicineFragment : Fragment() {
         val vewModelFactory =
             EditMedicineViewModelFactory(medicineId, medicineDao, loggedEventsDao, application)
         viewModel = ViewModelProvider(this, vewModelFactory).get(EditMedicineViewModel::class.java)
-        viewModel.navigationTrigger.observe(viewLifecycleOwner, Observer {
+        viewModel.navigationTrigger.observe(viewLifecycleOwner, {
             navigateToDestination(it)
         })
-        viewModel.medicineNameInputError.observe(viewLifecycleOwner, Observer {
+        viewModel.medicineNameInputError.observe(viewLifecycleOwner, {
             medicineNameInputError(it)
         })
-        viewModel.dailyDoseInputError.observe(viewLifecycleOwner, Observer {
+        viewModel.dailyDoseInputError.observe(viewLifecycleOwner, {
             dailyDoseInputError(it)
         })
-        viewModel.currentStockInputError.observe(viewLifecycleOwner, Observer {
+        viewModel.currentStockInputError.observe(viewLifecycleOwner, {
             currentStockInputError(it)
         })
-        viewModel.resetInputErrors.observe(viewLifecycleOwner, Observer {
+        viewModel.resetInputErrors.observe(viewLifecycleOwner, {
             resetErrorMarkings(it)
         })
-        viewModel.showDialog.observe(viewLifecycleOwner, Observer {
+        viewModel.showDialog.observe(viewLifecycleOwner, {
             showDialog(it)
         })
-        viewModel.closeDialog.observe(viewLifecycleOwner, Observer {
+        viewModel.closeDialog.observe(viewLifecycleOwner, {
             closeDialog(it)
         })
 
@@ -123,8 +123,9 @@ class EditMedicineFragment : Fragment() {
         }
     }
 
+    /** Set the screen title (on the toolbar) to either "Edit Medicine" or "New Medicine" */
     private fun setScreenTitle() {
-        requireActivity().toolbar.title = viewModel.getScreenTitle()
+        (requireActivity() as MainActivity).supportActionBar?.title = viewModel.getScreenTitle()
     }
 
     private fun navigateToDestination(navigationEvent: OneTimeEvent<NavigationEventWithNoArguments>) {
@@ -149,7 +150,7 @@ class EditMedicineFragment : Fragment() {
 
     private fun showHelpDialog(dialogInfo: EditMedicineViewModel.DialogInfo) {
         Timber.v("showHelpDialog()")
-        MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
+        MaterialAlertDialogBuilder(requireContext(), R.style.ThemeOverlay_MedsStockTracker_MaterialAlertDialog)
             .setTitle(dialogInfo.title)
             .setMessage(dialogInfo.message)
             .setNegativeButton(dialogInfo.dismissButtonText) { _, _ -> }

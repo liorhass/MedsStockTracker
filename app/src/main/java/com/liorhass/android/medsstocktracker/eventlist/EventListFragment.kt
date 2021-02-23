@@ -6,7 +6,6 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.selection.SelectionTracker
@@ -31,14 +30,14 @@ class EventListFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Get a reference to our ViewModel using our ViewModelFactory
         val application = requireNotNull(this.activity).application
         val loggedEventsDao = AppDatabase.getInstance(application).loggedEventDao
         val vewModelFactory = EventListViewModelFactory(loggedEventsDao)
         viewModel = ViewModelProvider(this, vewModelFactory).get(EventListViewModel::class.java)
-        viewModel.confirmDeletion.observe(viewLifecycleOwner, Observer {
+        viewModel.confirmDeletion.observe(viewLifecycleOwner, {
             confirmEventDeletion(it)
         })
 
@@ -49,7 +48,7 @@ class EventListFragment : Fragment() {
         adapter = EventListAdapter(viewModel, requireNotNull(context))
         binding.eventListRecyclerView.adapter = adapter
         // Observe changes in the database, and reload the adapter with the updated data
-        viewModel.loggedEvents.observe(viewLifecycleOwner, Observer {
+        viewModel.loggedEvents.observe(viewLifecycleOwner, {
             adapter.setLoggedEvents(it)
         })
 

@@ -24,7 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
         // In the medicines table we need to delete two columns. SQLite doesn't support this directly,
         // so we create a new temp table, copy the old data to the new one, delete the old table and
         // rename the new one.
-        val MIGRATION_7_8 = object : Migration(7, 8) {
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 Timber.i("MIGRATION_7_8.migrate()")
                 migrateMedicinesTableV7toV8(database)
@@ -33,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         // Add 3 fields to the medicines table: notes, prev_increment, prev_prev_increment
-        val MIGRATION_8_9 = object : Migration(8, 9) {
+        private val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 Timber.i("MIGRATION_8_9.migrate()")
                 migrateMedicinesTableV8toV9(database)

@@ -20,9 +20,10 @@
             </intent-filter>
         </activity>
 
+<!--
         <activity android:name=".fimport.ImportActivity"
-                  android:noHistory="true"> <!-- After the import we navigate to MainActivity. This flag prevents the back button from taking the user back to the import activity from there -->
-            <!-- See: https://stackoverflow.com/a/39885806/1071117 -->
+                  android:noHistory="true"> &lt;!&ndash; After the import we navigate to MainActivity. This flag prevents the back button from taking the user back to the import activity from there &ndash;&gt;
+            &lt;!&ndash; See: https://stackoverflow.com/a/39885806/1071117 &ndash;&gt;
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.VIEW" />
@@ -33,18 +34,36 @@
                 <data android:scheme="content" />
                 <data android:mimeType="*/*" />
                 <data android:host="*" />
-                <!-- Work around Android's ugly primitive PatternMatcher implementation that can't
-                     cope with finding a . early in the path unless it's explicitly matched. -->
-                <!--
+                &lt;!&ndash; Filtering based on file extension doesn't work on modern Android.
+                     Read the comments from @CommonsWare here: https://stackoverflow.com/q/48367934/1071117
+                     todo: Per @CommonsWare above, we should cancel this intent-filter and change to pull-based import instead of this push-based method &ndash;&gt;
+                &lt;!&ndash; Work around Android's ugly primitive PatternMatcher implementation that can't
+                     cope with finding a . early in the path unless it's explicitly matched. &ndash;&gt;
+                &lt;!&ndash;
                                 <data android:pathPattern=".*\\.mstdbx" />
                                 <data android:pathPattern=".*\\..*\\.mstdbx" />
                                 <data android:pathPattern=".*\\..*\\..*\\.mstdbx" />
                                 <data android:pathPattern=".*\\..*\\..*\\..*\\.mstdbx" />
                                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mstdbx" />
                                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mstdbx" />
-                -->
+                &ndash;&gt;
+                &lt;!&ndash;
+                                <data android:pathPattern=".*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mstdbx" android:scheme="file" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\.mstdbx" android:scheme="content" android:mimeType="*/*" android:host="*"/>
+                &ndash;&gt;
             </intent-filter>
         </activity>
+-->
 
         <!-- File provider for our "share" functionality where we send a file with a DB replica -->
         <provider

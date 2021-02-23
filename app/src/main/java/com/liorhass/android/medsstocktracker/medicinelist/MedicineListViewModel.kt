@@ -5,10 +5,7 @@ import android.net.Uri
 import android.text.Spanned
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.recyclerview.selection.Selection
 import com.google.gson.Gson
 import com.liorhass.android.medsstocktracker.R
@@ -25,12 +22,9 @@ import java.io.File
 
 class MedicineListViewModel(private val medicinesDao: MedicinesDao,
                             private val loggedEventDao: LoggedEventsDao,
-                            private val application: Application) :
-        ViewModel() {
+                            application: Application) :
+        AndroidViewModel(application) {
 
-    // So we can cancel coroutines started by this ViewModel.
-    private var viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     var medicines = medicinesDao.getAllMedicinesLD()
 
     // Trigger a navigation to the MedicineDetails screen
@@ -70,16 +64,14 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
         while(iterator.hasNext()) {
             val medicineId = iterator.next()
             Timber.v("deleteMedicines(): going to delete ID=${medicineId}")
-            uiScope.launch {
-                withContext(Dispatchers.IO) {
-                    val medicine= medicinesDao.getMedicine(medicineId)
-                    val loggedEvent = LoggedEvent(dateAndTime = System.currentTimeMillis(),
-                              type = LoggedEvent.TYPE_DELETE_MEDICINE,
-                              medicineName = medicine?.name ?: "",
-                              text = application.getString(R.string.logged_event_medicine_deleted))
-                    loggedEventDao.insertLoggedEvent(loggedEvent)
-                    medicinesDao.deleteMedicine(medicineId)
-                }
+            viewModelScope.launch(Dispatchers.IO) {
+                val medicine= medicinesDao.getMedicine(medicineId)
+                val loggedEvent = LoggedEvent(dateAndTime = System.currentTimeMillis(),
+                          type = LoggedEvent.TYPE_DELETE_MEDICINE,
+                          medicineName = medicine?.name ?: "",
+                          text = getApplication<Application>().getString(R.string.logged_event_medicine_deleted))
+                loggedEventDao.insertLoggedEvent(loggedEvent)
+                medicinesDao.deleteMedicine(medicineId)
             }
         }
     }
@@ -96,8 +88,8 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
 
     fun doShare() {
         Timber.v("doShare()")
-        uiScope.launch {
-            var uri: Uri? = null
+        viewModelScope.launch {
+            var uri: Uri?
             withContext(Dispatchers.IO) {
                 uri = dumpDbToJsonFile()
             }
@@ -124,7 +116,7 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
         Timber.d("JSON: $jsonStr")
 
         return try {
-            val path = File(application.filesDir, SharedData.Constants.DIR_NAME)
+            val path = File(getApplication<Application>().filesDir, SharedData.Constants.DIR_NAME)
             if (!path.exists()) {
                 path.mkdirs()
             }
@@ -132,7 +124,7 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
             val file = File(path, SharedData.Constants.FILE_NAME)
             file.writeText(jsonStr)
             Timber.d("dumpDbToJsonFile(): Wrote DB to $path/${SharedData.Constants.FILE_NAME}")
-            getUriForFile(application, SharedData.Constants.AUTHORITY, file)
+            getUriForFile(getApplication(), SharedData.Constants.AUTHORITY, file)
         } catch (e: Exception) {
             Timber.e("doShare(): Exception: ${e.localizedMessage}")
             null
@@ -142,7 +134,6 @@ class MedicineListViewModel(private val medicinesDao: MedicinesDao,
     // Called when the ViewModel is destroyed. Cancel all ongoing coroutines
     override fun onCleared() {
         super.onCleared()
-        viewModelJob.cancel()
-        Timber.v("onCleard()")
+        Timber.v("onCleared()")
     }
 }
